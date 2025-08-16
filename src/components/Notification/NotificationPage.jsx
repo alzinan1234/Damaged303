@@ -7,9 +7,10 @@ import {
   TrashIcon,
   CheckCircleIcon,
   EyeIcon,
-  PaperAirplaneIcon // For the new 'push' action
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import toast, { Toaster } from 'react-hot-toast'; // Import toast and Toaster
 
 // Dummy data updated to use 'recipient' instead of 'user' for clarity
 const initialNotifications = Array.from({ length: 50 }).map((_, i) => ({
@@ -65,7 +66,6 @@ const NotificationPage = ({ onBackClick }) => {
       } else if (notifDate >= startOfYesterday) {
         yesterday.push(notif);
       }
-      // "Older" notifications are not included in the display
     });
 
     return { today, yesterday };
@@ -73,6 +73,7 @@ const NotificationPage = ({ onBackClick }) => {
 
   const handleDeleteNotification = (id) => {
     setAllNotifications(prev => prev.filter(notif => notif.id !== id));
+    toast.success('Notification deleted successfully!');
   };
 
   const handleToggleReadStatus = (id) => {
@@ -81,12 +82,12 @@ const NotificationPage = ({ onBackClick }) => {
         notif.id === id ? { ...notif, isRead: !notif.isRead } : notif
       )
     );
+    toast.success('Notification status updated!');
   };
   
-  // New function to handle sending a new push notification
   const handleSendPushNotification = () => {
     if (!pushRecipient || !pushTitle || !pushDescription) {
-      alert('Please fill in all fields to send a notification.');
+      toast.error('Please fill in all fields to send a notification.');
       return;
     }
 
@@ -99,15 +100,14 @@ const NotificationPage = ({ onBackClick }) => {
       isRead: false,
     };
 
-    // Add the new notification to the top of the list
     setAllNotifications(prev => [newNotification, ...prev]);
     
-    // Clear the input fields
     setPushRecipient('');
     setPushTitle('');
     setPushDescription('');
 
-    alert(`Notification sent to ${newNotification.recipient} successfully!`);
+    // Use toast.success for a successful message
+    toast.success(`Notification sent to ${newNotification.recipient} successfully!`);
   };
 
   const NotificationItem = ({ notification }) => {
@@ -117,7 +117,6 @@ const NotificationPage = ({ onBackClick }) => {
       <div className='p-5 border-b border-gray-200 last:border-b-0'>
         <div className={`flex items-start justify-between ${statusClasses} transition-colors duration-200`}>
           <div className="flex-grow">
-            {/* Display the 'recipient' and 'created at' fields */}
             <p className="text-xs text-gray-500 font-semibold">{notification.recipient}</p>
             <p className="text-base font-semibold">{notification.title}</p>
             <p className="text-sm">{notification.description}</p>
@@ -126,7 +125,6 @@ const NotificationPage = ({ onBackClick }) => {
             </span>
           </div>
           <div className="flex items-center space-x-2 ml-4">
-            {/* Action buttons */}
             <button
               onClick={() => handleToggleReadStatus(notification.id)}
               className={`${notification.isRead ? 'text-blue-600' : 'text-purple-700'} hover:opacity-75 p-1 rounded-full transition-opacity duration-200`}
@@ -153,6 +151,9 @@ const NotificationPage = ({ onBackClick }) => {
 
   return (
     <div className="bg-white rounded-2xl text-black p-6 sm:p-6 lg:p-8">
+      {/* Add the Toaster component here */}
+      <Toaster position="top-center" reverseOrder={false} />
+
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
@@ -205,7 +206,7 @@ const NotificationPage = ({ onBackClick }) => {
         />
         <button
           onClick={handleSendPushNotification}
-          className="mt-4 w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200"
+          className="mt-4 w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-[#013D3B] text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200"
         >
           <PaperAirplaneIcon className="h-5 w-5 rotate-90" />
           Send Notification
