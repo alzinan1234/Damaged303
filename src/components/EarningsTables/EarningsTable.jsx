@@ -3,14 +3,16 @@
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-// Dummy data updated to match the new structure from the diagram
+// Dummy data updated to match the new structure with monthly and yearly plans
 const dummyData = Array.from({ length: 50 }).map((_, i) => ({
   id: 1001 + i,
   name: `User ${i + 1}`,
   email: `user${i + 1}@example.com`,
   phone: `555-010${i % 10}-00${i % 9}`,
-  subscriptionPlan: i % 3 === 0 ? "Freemium" : "Paid",
-  price: (50 + i * 2.5).toFixed(2),
+  // Assign subscription plans as either "Monthly" or "Yearly"
+  subscriptionPlan: i % 2 === 0 ? "Monthly" : "Yearly",
+  // Adjust price based on the plan type
+  price: i % 2 === 0 ? (10 + i * 0.5).toFixed(2) : (100 + i * 5).toFixed(2),
   joinDate: `${(i % 28) + 1} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'][i % 8]} 2024`,
 }));
 
@@ -19,7 +21,8 @@ export default function EarningsTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
-  const [planFilter, setPlanFilter] = useState("All"); // State for subscription plan filter
+  // State for subscription plan filter, now including "Monthly" and "Yearly"
+  const [planFilter, setPlanFilter] = useState("All");
 
   // Memoized filtering logic for search and subscription plan
   const filteredData = useMemo(() => {
@@ -30,6 +33,7 @@ export default function EarningsTable() {
         item.email.toLowerCase().includes(searchLower) ||
         item.phone.includes(searchQuery);
 
+      // Filter logic now checks for "Monthly" or "Yearly"
       const planMatch = planFilter === "All" || item.subscriptionPlan === planFilter;
 
       return searchMatch && planMatch;
@@ -55,7 +59,7 @@ export default function EarningsTable() {
   return (
     <div className="min-h-screen p-4 sm:p-8 bg-white text-black">
       {/* Earnings Overview Card */}
-      <h2 className="text-black text-xl font-semibold mb-4">Earning Overview</h2>
+      <h2 className="text-black text-xl font-semibold mb-4">Subscriber Overview</h2>
       <div className="bg-[#013D3B] rounded-lg p-6 mb-6 w-full max-w-2xl shadow-xl text-white">
         <div className="text-md font-medium opacity-80">Total Earning</div>
         <div className="text-4xl font-bold mt-1">$25,215</div>
@@ -80,8 +84,8 @@ export default function EarningsTable() {
             className="w-full appearance-none pl-4 pr-10 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="All">All Plans</option>
-            <option value="Paid">Paid</option>
-            <option value="Freemium">Freemium</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Yearly">Yearly</option>
           </select>
            <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
         </div>
@@ -110,7 +114,7 @@ export default function EarningsTable() {
                     <div className="text-xs text-gray-500">{item.phone}</div>
                 </td>
                 <td className="py-3 px-4">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${item.subscriptionPlan === "Paid" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"}`}>
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${item.subscriptionPlan === "Monthly" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}`}>
                         {item.subscriptionPlan}
                     </span>
                 </td>
@@ -139,22 +143,6 @@ export default function EarningsTable() {
 
       {/* Pagination Controls */}
       <div className="flex flex-col sm:flex-row justify-end items-center mt-6 text-black text-sm">
-        {/* <div className="mb-4 sm:mb-0">
-          Showing{" "}
-          <select
-            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
-            value={itemsPerPage}
-            onChange={handleFilterChange(setItemsPerPage)}
-            aria-label="Items per page"
-          >
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-          </select>{" "}
-          of {filteredData.length} entries
-        </div> */}
-
         <div className="flex gap-2">
           <button
             onClick={() => setCurrentPage(currentPage - 1)}

@@ -32,7 +32,7 @@ const navItems = [
   },
 
   {
-    name: "Earning Overview",
+    name: "Subscriber Overview",
     href: "/admin/earning",
     icon: (props) => (
       <svg
@@ -78,7 +78,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
   const handleLogout = () => {
     // Implement logout functionality here
-    console.log("User logged out");
+    console.log("admin logged out");
     // Redirect to login page or perform any other action
     router.push("/"); // Example redirect
   };
