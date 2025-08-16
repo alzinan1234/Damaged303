@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { PlusIcon, PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, TrashIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import toast, { Toaster } from "react-hot-toast";
 
 // Dummy data for initial display
@@ -66,7 +66,7 @@ export default function AdManagementTable() {
     };
 
     if (editingAd) {
-      // Edit an existing ad
+      // Edit an existing ad (this part is now inactive but kept for logic)
       setAds(prev =>
         prev.map(ad =>
           ad.id === editingAd.id ? {
@@ -122,9 +122,9 @@ export default function AdManagementTable() {
     if (!mediaPreview) return null;
 
     if (formState.adType === 'Image') {
-      return <img src={mediaPreview} alt="Ad preview" className="w-[300] h-[300]  rounded-md mt-4" />;
+      return <img src={mediaPreview} alt="Ad preview" className="w-[300] h-[300] rounded-md mt-4" />;
     } else if (formState.adType === 'Video') {
-      return <video src={mediaPreview} controls className="w-[300] h-[300]  rounded-md mt-4" />;
+      return <video src={mediaPreview} controls className="w-[300] h-[300] rounded-md mt-4" />;
     }
     return null;
   };
@@ -182,17 +182,8 @@ export default function AdManagementTable() {
               type="submit"
               className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-[#013D3B] text-white font-semibold rounded-md hover:bg-gray-700 transition-colors duration-200"
             >
-              {editingAd ? (
-                <>
-                  <PencilIcon className="h-5 w-5" />
-                  Update Ad
-                </>
-              ) : (
-                <>
-                  <PlusIcon className="h-5 w-5" />
-                  Add Ad
-                </>
-              )}
+              <PlusIcon className="h-5 w-5" />
+              Add Ad
             </button>
             {editingAd && (
               <button
@@ -246,9 +237,6 @@ export default function AdManagementTable() {
                   </td>
                   <td className="py-3 px-4 text-center">
                     <div className="flex justify-center space-x-2">
-                      <button onClick={() => handleEditAd(ad)} className="text-blue-500 hover:text-blue-600 transition-colors duration-200" title="Edit">
-                        <PencilIcon className="h-5 w-5" />
-                      </button>
                       <button onClick={() => handleToggleActive(ad.id)} className={`transition-colors duration-200 ${ad.isActive ? "text-red-500 hover:text-red-600" : "text-green-500 hover:text-green-600"}`} title={ad.isActive ? "Deactivate" : "Activate"}>
                         {ad.isActive ? <XCircleIcon className="h-5 w-5" /> : <CheckCircleIcon className="h-5 w-5" />}
                       </button>

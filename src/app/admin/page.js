@@ -24,7 +24,7 @@ const Admin = () => {
   ];
   return (
     <>
-      <div className="bg-white text-black w-full min-h-screen">
+      <div className="bg-white text-black w-full ">
         <div className="">
           {/* Total User Card */}
           <MetricCard
@@ -65,7 +65,7 @@ const Admin = () => {
         </div>
 
         <div className="p-4">
-          <RegistrationTable />
+          {/* <RegistrationTable /> */}
         </div>
       </div>
     </>

@@ -26,20 +26,11 @@ import barss from "../../public/icon/bars.png"; // This import seems unused
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   {
-    name: "User List",
+    name: "User Management",
     href: "/admin/user-list",
     icon: Users,
   },
-  {
-    name: "Notifications",
-    href: "/admin/notifications",
-    icon: Bell,
-  },
-  {
-    name: "Add Management",
-    href: "/admin/ad-management",
-    icon: DiamondPlus,
-  },
+
   {
     name: "Earning Overview",
     href: "/admin/earning",
@@ -67,6 +58,18 @@ const navItems = [
       </svg>
     ),
   },
+ 
+  {
+    name: "Add Management",
+    href: "/admin/ad-management",
+    icon: DiamondPlus,
+  },
+   {
+    name: "Notifications",
+    href: "/admin/notifications",
+    icon: Bell,
+  },
+  
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

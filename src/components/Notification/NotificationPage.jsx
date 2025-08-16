@@ -115,7 +115,7 @@ const NotificationPage = ({ onBackClick }) => {
 
     return (
       <div className='p-5 border-b border-gray-200 last:border-b-0'>
-        <div className={`flex items-start justify-between ${statusClasses} transition-colors duration-200`}>
+        <div className={`flex items-center justify-between ${statusClasses} transition-colors duration-200`}>
           <div className="flex-grow">
             <p className="text-xs text-gray-500 font-semibold">{notification.recipient}</p>
             <p className="text-base font-semibold">{notification.title}</p>
@@ -124,8 +124,8 @@ const NotificationPage = ({ onBackClick }) => {
               {getRelativeTime(notification.timestamp)}
             </span>
           </div>
-          <div className="flex items-center space-x-2 ml-4">
-            <button
+          <div className="flex items-center justify-center space-x-2 ml-4">
+            {/* <button
               onClick={() => handleToggleReadStatus(notification.id)}
               className={`${notification.isRead ? 'text-blue-600' : 'text-purple-700'} hover:opacity-75 p-1 rounded-full transition-opacity duration-200`}
               aria-label={notification.isRead ? 'Mark as unread' : 'Mark as read'}
@@ -135,7 +135,7 @@ const NotificationPage = ({ onBackClick }) => {
               ) : (
                 <EyeIcon className="h-5 w-5" />
               )}
-            </button>
+            </button> */}
             <button
               onClick={() => handleDeleteNotification(notification.id)}
               className="text-red-600 hover:text-red-400 p-1 rounded-full transition-colors duration-200"

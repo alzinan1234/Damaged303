@@ -301,7 +301,7 @@ export default function UserList() {
                   ID
                 </th>
                 <th className="px-3 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
+                  User
                 </th>
                 <th className="px-3 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Join Date
