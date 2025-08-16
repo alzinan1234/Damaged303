@@ -130,7 +130,7 @@ export default function EarningDetailsPage({ params }) {
             <span className="text-lg font-semibold text-gray-800">{earningDetails.commission}</span>
           </div>
           <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Seller's Profit</span>
+            <span className="text-xs text-gray-500">Seller s Profit</span>
             <span className="text-lg font-semibold text-gray-800">{earningDetails.profit}</span>
           </div>
           <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
