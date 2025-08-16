@@ -17,6 +17,7 @@ import {
   BanknoteArrowDown,
   Users2,
   UserPlus2,
+  DiamondPlus,
 } from "lucide-react";
 import Image from "next/image";
 import dreckks from "../../public/tika-food.svg"; // This import seems unused
@@ -33,6 +34,11 @@ const navItems = [
     name: "Notifications",
     href: "/admin/notifications",
     icon: Bell,
+  },
+  {
+    name: "Add Management",
+    href: "/admin/ad-management",
+    icon: DiamondPlus,
   },
   {
     name: "Earning Overview",
