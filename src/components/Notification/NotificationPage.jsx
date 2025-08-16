@@ -1,25 +1,35 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ArrowLeftIcon,
   MagnifyingGlassIcon,
-  AdjustmentsHorizontalIcon,
-  EyeIcon, // For view
-  TrashIcon, // For delete
-  CheckCircleIcon, // For mark as read/unread
-  EnvelopeIcon // Alternative for unread
-} from '@heroicons/react/24/outline'; // Outline for action icons
-
-import { notifications as initialNotifications } from '../../components/lib/notificationData'; // Import mock data
+  TrashIcon,
+  CheckCircleIcon,
+  EyeIcon,
+  PaperAirplaneIcon // For the new 'push' action
+} from '@heroicons/react/24/outline';
 import Image from 'next/image';
 
-// NotificationPage now accepts an onBackClick prop
+// Dummy data updated to use 'recipient' instead of 'user' for clarity
+const initialNotifications = Array.from({ length: 50 }).map((_, i) => ({
+  id: `notif-${i}`,
+  recipient: `User ${i + 1}`, // Represents the user receiving the notification
+  title: `New Message from Admin`,
+  description: i % 2 === 0
+    ? `You have a new message regarding your recent activity. Check it out now!`
+    : `A new update is available. Tap here to learn more about the latest features.`,
+  timestamp: new Date(Date.now() - Math.random() * 86400000 * 30).toISOString(),
+  isRead: Math.random() > 0.5,
+}));
+
 const NotificationPage = ({ onBackClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [allNotifications, setAllNotifications] = useState(initialNotifications); // Use state to manage notifications for deletion/read status
-
-  const now = useMemo(() => new Date(), []); // Memoize current time for grouping calculations
+  const [allNotifications, setAllNotifications] = useState(initialNotifications);
+  const [pushTitle, setPushTitle] = useState('');
+  const [pushRecipient, setPushRecipient] = useState('');
+  const [pushDescription, setPushDescription] = useState('');
+  const now = useMemo(() => new Date(), []);
 
   const getRelativeTime = (timestamp) => {
     const notificationDate = new Date(timestamp);
@@ -31,22 +41,19 @@ const NotificationPage = ({ onBackClick }) => {
     } else if (diffHours < 24) {
       return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     } else {
-      // For simplicity, just return a formatted date for older items.
-      // In a real app, you might differentiate days more clearly.
       return notificationDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
   };
 
-  // Group and filter notifications
   const groupedNotifications = useMemo(() => {
     const filtered = allNotifications.filter(notif =>
       notif.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      notif.description.toLowerCase().includes(searchTerm.toLowerCase())
+      notif.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      notif.recipient.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const today = [];
     const yesterday = [];
-    const older = [];
 
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
@@ -57,12 +64,11 @@ const NotificationPage = ({ onBackClick }) => {
         today.push(notif);
       } else if (notifDate >= startOfYesterday) {
         yesterday.push(notif);
-      } else {
-        older.push(notif); // Or discard if only showing today/yesterday
       }
+      // "Older" notifications are not included in the display
     });
 
-    return { today, yesterday, older };
+    return { today, yesterday };
   }, [allNotifications, searchTerm, now]);
 
   const handleDeleteNotification = (id) => {
@@ -76,45 +82,69 @@ const NotificationPage = ({ onBackClick }) => {
       )
     );
   };
+  
+  // New function to handle sending a new push notification
+  const handleSendPushNotification = () => {
+    if (!pushRecipient || !pushTitle || !pushDescription) {
+      alert('Please fill in all fields to send a notification.');
+      return;
+    }
+
+    const newNotification = {
+      id: `new-notif-${Date.now()}`,
+      recipient: pushRecipient,
+      title: pushTitle,
+      description: pushDescription,
+      timestamp: new Date().toISOString(),
+      isRead: false,
+    };
+
+    // Add the new notification to the top of the list
+    setAllNotifications(prev => [newNotification, ...prev]);
+    
+    // Clear the input fields
+    setPushRecipient('');
+    setPushTitle('');
+    setPushDescription('');
+
+    alert(`Notification sent to ${newNotification.recipient} successfully!`);
+  };
 
   const NotificationItem = ({ notification }) => {
-    const statusClasses = notification.isRead
-      ? 'text-gray-500' // Read notifications can be slightly faded to a dark gray
-      : 'text-black'; // Unread notifications stand out with black text
+    const statusClasses = notification.isRead ? 'text-gray-500' : 'text-black';
 
     return (
-      <div className='p-5'>
-        <div className={`flex items-center justify-between ${notification.isRead ? '' : ''} last:border-b-0 transition-colors duration-200`}>
+      <div className='p-5 border-b border-gray-200 last:border-b-0'>
+        <div className={`flex items-start justify-between ${statusClasses} transition-colors duration-200`}>
           <div className="flex-grow">
-            <p className={`text-base font-semibold ${statusClasses}`}>{notification.title}</p>
-            <p className={`text-sm ${statusClasses}`}>{notification.description}</p>
-          </div>
-          <div className="flex items-center space-x-4 ml-4">
-            <span className="text-xs text-gray-500 whitespace-nowrap"> {/* Changed to gray-500 */}
+            {/* Display the 'recipient' and 'created at' fields */}
+            <p className="text-xs text-gray-500 font-semibold">{notification.recipient}</p>
+            <p className="text-base font-semibold">{notification.title}</p>
+            <p className="text-sm">{notification.description}</p>
+            <span className="text-xs text-gray-400 whitespace-nowrap">
               {getRelativeTime(notification.timestamp)}
             </span>
-            <div className="flex space-x-2">
-              {/* Mark as Read/Unread Icon */}
-              <button
-                onClick={() => handleToggleReadStatus(notification.id)}
-                className={`${notification.isRead ? 'text-blue-600' : 'text-purple-700'} hover:opacity-75 p-1 rounded-full transition-opacity duration-200`} // Adjusted colors for better contrast on white background
-                aria-label={notification.isRead ? 'Mark as unread' : 'Mark as read'}
-              >
-                {notification.isRead ? (
-                  <CheckCircleIcon className="h-5 w-5" />
-                ) : (
-                  <EyeIcon className="h-5 w-5" />
-                )}
-              </button>
-              {/* Delete Icon */}
-              <button
-                onClick={() => handleDeleteNotification(notification.id)}
-                className="text-red-600 hover:text-red-400 p-1 rounded-full transition-colors duration-200" // Adjusted for better contrast
-                aria-label="Delete notification"
-              >
-                <TrashIcon className="h-5 w-5" />
-              </button>
-            </div>
+          </div>
+          <div className="flex items-center space-x-2 ml-4">
+            {/* Action buttons */}
+            <button
+              onClick={() => handleToggleReadStatus(notification.id)}
+              className={`${notification.isRead ? 'text-blue-600' : 'text-purple-700'} hover:opacity-75 p-1 rounded-full transition-opacity duration-200`}
+              aria-label={notification.isRead ? 'Mark as unread' : 'Mark as read'}
+            >
+              {notification.isRead ? (
+                <CheckCircleIcon className="h-5 w-5" />
+              ) : (
+                <EyeIcon className="h-5 w-5" />
+              )}
+            </button>
+            <button
+              onClick={() => handleDeleteNotification(notification.id)}
+              className="text-red-600 hover:text-red-400 p-1 rounded-full transition-colors duration-200"
+              aria-label="Delete notification"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -122,123 +152,91 @@ const NotificationPage = ({ onBackClick }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl text-black p-6 sm:p-6 lg:p-8"> {/* Changed bg to white and text to black */}
+    <div className="bg-white rounded-2xl text-black p-6 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          {/* Back button now calls onBackClick prop */}
           <button
-            className="text-black bg-gray-200 rounded-[33px] p-[10px] hover:bg-gray-300 transition-colors duration-200" // Changed text to black, bg to gray-200, hover to gray-300
-            onClick={onBackClick} // Add onClick handler
+            className="text-black bg-gray-200 rounded-[33px] p-[10px] hover:bg-gray-300 transition-colors duration-200"
+            onClick={onBackClick}
             aria-label="Go back"
           >
             <ArrowLeftIcon className="h-6 w-6" />
           </button>
-          <h1 className="text-[24px] font-medium">Notification</h1> {/* Text is already black from parent */}
+          <h1 className="text-[24px] font-medium">Notification</h1>
         </div>
-        <div className="flex items-center">
-          <div className="relative flex justify-between items-center">
-            {/* Adjusted icon color */}
-            <input
-              type="text"
-              placeholder="Search"
-              className="pl-2 pr-5  py-2 bg-gray-100 rounded-tl-[7.04px] rounded border-[1px] border-gray-300 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-black" // Changed bg, border, and added text-black
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-             <MagnifyingGlassIcon className="absolute  right-2 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
-          </div>
-          {/* <button className="bg-[#B92921] p-[5px] hover:bg-gray-300 transition-colors"> {/* Changed bg to gray-200, hover to gray-300 */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="25"
-              viewBox="0 0 24 25"
-              fill="none"
-            >
-              <path
-                d="M11 8.5L20 8.5"
-                stroke="white" // Changed stroke to black
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <path
-                d="M4 16.5L14 16.5"
-                stroke="white" // Changed stroke to black
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <ellipse
-                cx="7"
-                cy="8.5"
-                rx="3"
-                ry="3"
-                transform="rotate(90 7 8.5)"
-                stroke="white" // Changed stroke to black
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <ellipse
-                cx="17"
-                cy="16.5"
-                rx="3"
-                ry="3"
-                transform="rotate(90 17 16.5)"
-                stroke="white" // Changed stroke to black
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          {/* </button> */} 
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search"
+            className="pl-2 pr-5 py-2 bg-gray-100 rounded-tl-[7.04px] rounded border-[1px] border-gray-300 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-black"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <MagnifyingGlassIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
         </div>
+      </div>
+
+      {/* New Push Notification Section */}
+      <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200 shadow-sm">
+        <h2 className="text-lg font-semibold text-black mb-3">Send New Notification</h2>
+        <div className="flex flex-col md:flex-row gap-4">
+          <input
+            type="text"
+            placeholder="Recipient (e.g., User 1)"
+            value={pushRecipient}
+            onChange={(e) => setPushRecipient(e.target.value)}
+            className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+          <input
+            type="text"
+            placeholder="Notification Title"
+            value={pushTitle}
+            onChange={(e) => setPushTitle(e.target.value)}
+            className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+        <textarea
+          placeholder="Notification Description"
+          value={pushDescription}
+          onChange={(e) => setPushDescription(e.target.value)}
+          rows="2"
+          className="w-full mt-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+        />
+        <button
+          onClick={handleSendPushNotification}
+          className="mt-4 w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200"
+        >
+          <PaperAirplaneIcon className="h-5 w-5 rotate-90" />
+          Send Notification
+        </button>
       </div>
 
       {/* Notification List Container */}
       <div className="rounded-lg overflow-hidden">
-        {groupedNotifications.today.length > 0 && (
-          <div className="py-2">
-            <h2 className="text-lg font-semibold text-black px-4 py-4"> {/* Changed text to black */}
-              Today <span className="text-[#71F50C] bg-[#71F50C1A] rounded-full text-[12px] p-2 px-3 font-normal">{groupedNotifications.today.length}</span>
-            </h2>
-            {groupedNotifications.today.map(notif => (
-              <div className='border border-gray-200 rounded mt-2'> {/* Adjusted border color */}
-                <NotificationItem key={notif.id} notification={notif} />
+        {Object.keys(groupedNotifications).map(groupName => {
+          const notifications = groupedNotifications[groupName];
+          if (notifications.length === 0) return null;
+          return (
+            <div key={groupName} className="py-2">
+              <h2 className="text-lg font-semibold text-black px-4 py-4">
+                {groupName.charAt(0).toUpperCase() + groupName.slice(1)}
+                <span className="text-[#71F50C] bg-[#71F50C1A] rounded-full text-[12px] p-2 px-3 font-normal ml-2">
+                  {notifications.length}
+                </span>
+              </h2>
+              <div className='border border-gray-200 rounded mt-2'>
+                {notifications.map(notif => (
+                  <NotificationItem key={notif.id} notification={notif} />
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          );
+        })}
 
-        {groupedNotifications.yesterday.length > 0 && (
-          <div className="py-2">
-            <h2 className="text-lg font-semibold text-black px-4 py-4"> {/* Changed text to black */}
-              Yesterday <span className="text-[#71F50C] bg-[#71F50C1A] rounded-full text-[12px] p-2 px-3 font-normal">{groupedNotifications.yesterday.length}</span>
-            </h2>
-            {groupedNotifications.yesterday.map(notif => (
-              <div className='border border-gray-200 rounded mt-2'> {/* Adjusted border color */}
-                <NotificationItem key={notif.id} notification={notif} />
-              </div>
-            ))}
-          </div>
+        {groupedNotifications.today.length === 0 && groupedNotifications.yesterday.length === 0 && (
+          <p className="p-4 text-center text-gray-500">No recent notifications found.</p>
         )}
-
-        {groupedNotifications.older.length > 0 && (
-          <div className="py-2">
-            <h2 className="text-lg font-semibold text-black px-4 py-4"> {/* Changed text to black */}
-              Older <span className="text-[#71F50C] bg-[#71F50C1A] rounded-full text-[12px] p-2 px-3 font-normal">{groupedNotifications.older.length}</span>
-            </h2>
-            {groupedNotifications.older.map(notif => (
-              <div className='border border-gray-200 rounded mt-2'> {/* Adjusted border color */}
-                <NotificationItem key={notif.id} notification={notif} />
-              </div>
-            ))}
-          </div>
-        )}
-
-        {groupedNotifications.today.length === 0 &&
-          groupedNotifications.yesterday.length === 0 &&
-          groupedNotifications.older.length === 0 && (
-            <p className="p-4 text-center text-gray-500">No notifications found.</p> 
-          )}
       </div>
     </div>
   );
