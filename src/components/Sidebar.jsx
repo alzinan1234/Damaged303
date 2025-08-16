@@ -30,6 +30,11 @@ const navItems = [
     icon: Users,
   },
   {
+    name: "Notifications",
+    href: "/admin/notifications",
+    icon: Bell,
+  },
+  {
     name: "Earning Overview",
     href: "/admin/earning",
     icon: (props) => (

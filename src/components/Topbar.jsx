@@ -5,7 +5,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation"; // Import useRouter
 
 export default function Topbar({ onBellClick }) {
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
+  
+  const handleBellClick = () => {
+
+    router.push("/admin/notifications"); // Navigate to the notifications page
+  }
 
   const handleUserImageClick = () => {
     router.push("/admin/profile"); // Navigate to the profile page
@@ -78,7 +83,7 @@ export default function Topbar({ onBellClick }) {
         {/* Notification Bell with onClick handler */}
         <div
           className="relative cursor-pointer flex items-center gap-2 bg-[#013D3B] border rounded-[12px] py-[5px] px-[8px]"
-          onClick={onBellClick}
+          onClick={handleBellClick}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
