@@ -2,27 +2,23 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter for navigation
-import { motion } from "framer-motion"; // Only motion is needed, AnimatePresence is for conditional rendering within one component
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
-// Dummy data for demonstration (ideally, this would be fetched from an API)
+// Use the same dummy data structure as the EarningsTable component
 const dummyData = Array.from({ length: 50 }).map((_, i) => ({
-  id: i + 1, // Add a unique ID for better keying
-  name: `Robert ${i + 1}`,
-  itemNumber: `#A${12345 + i}`,
-  salePrice: `$${(123 + i * 0.5).toFixed(2)}`,
-  commission: `${(10 + i % 5)}%`,
-  profit: `${(80 + i * 0.2).toFixed(2)}`,
-  date: `12 June 2025`,
-  description: `Detailed description for item #A${12345 + i}. This item was sold on 12 June 2025, generating a significant profit. Buyer: Customer ${i % 10 + 1}, Payment Method: Card ending in **** ${1234 + i % 100}.`,
-  buyer: `Customer ${i % 10 + 1}`,
-  paymentMethod: `Card ending in **** ${1234 + i % 100}`,
+  id: 1001 + i,
+  name: `User ${i + 1}`,
+  email: `user${i + 1}@example.com`,
+  phone: `555-010${i % 10}-00${i % 9}`,
+  subscriptionPlan: i % 3 === 0 ? "Freemium" : "Paid",
+  price: (50 + i * 2.5).toFixed(2),
+  joinDate: `${(i % 28) + 1} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'][i % 8]} 2024`,
 }));
 
 export default function EarningDetailsPage({ params }) {
   const router = useRouter();
-  const earningId = params.id; // Get the ID from the URL params
-
+  const earningId = Number(params.id); // Get the ID from the URL params and convert to a number
   const [earningDetails, setEarningDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,11 +29,12 @@ export default function EarningDetailsPage({ params }) {
         try {
           setLoading(true);
           setError(null);
+          
           // Simulate API call delay
           await new Promise(resolve => setTimeout(resolve, 300));
 
           // Find the item from dummyData based on the ID
-          const foundItem = dummyData.find(item => item.id === Number(earningId));
+          const foundItem = dummyData.find(item => item.id === earningId);
 
           if (foundItem) {
             setEarningDetails(foundItem);
@@ -51,7 +48,6 @@ export default function EarningDetailsPage({ params }) {
           setLoading(false);
         }
       };
-
       fetchDetails();
     }
   }, [earningId]);
@@ -68,10 +64,7 @@ export default function EarningDetailsPage({ params }) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white text-red-500 p-4">
         <p className="mb-4">Error: {error}</p>
-        <button
-          onClick={() => router.back()}
-          className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black"
-        >
+        <button onClick={() => router.back()} className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black">
           Go Back
         </button>
       </div>
@@ -82,10 +75,7 @@ export default function EarningDetailsPage({ params }) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white text-black p-4">
         <p className="mb-4">Earning record not found for ID: {earningId}.</p>
-        <button
-          onClick={() => router.back()}
-          className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black"
-        >
+        <button onClick={() => router.back()} className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black">
           Go Back
         </button>
       </div>
@@ -93,7 +83,7 @@ export default function EarningDetailsPage({ params }) {
   }
 
   return (
-    <motion.div
+    <motion.div 
       className="min-h-screen bg-white font-inter text-black p-4 sm:p-8 flex items-center justify-center"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -102,8 +92,8 @@ export default function EarningDetailsPage({ params }) {
       <div className="max-w-2xl w-full mx-auto bg-white rounded-3xl p-8 shadow-2xl border border-gray-100">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Earning Details</h1>
-          <button
-            onClick={() => router.back()}
+          <button 
+            onClick={() => router.back()} 
             className="text-gray-400 hover:text-red-500 transition-colors duration-200"
             aria-label="Go back"
           >
@@ -112,48 +102,45 @@ export default function EarningDetailsPage({ params }) {
             </svg>
           </button>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Name</span>
+            <span className="text-xs text-gray-500">User ID</span>
+            <span className="text-lg font-semibold text-gray-800">#{earningDetails.id}</span>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
+            <span className="text-xs text-gray-500">User Name</span>
             <span className="text-lg font-semibold text-gray-800">{earningDetails.name}</span>
           </div>
           <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Item Number</span>
-            <span className="text-lg font-semibold text-gray-800">{earningDetails.itemNumber}</span>
+            <span className="text-xs text-gray-500">Email</span>
+            <span className="text-lg font-semibold text-gray-800">{earningDetails.email}</span>
           </div>
           <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Sale Price</span>
-            <span className="text-lg font-semibold text-gray-800">{earningDetails.salePrice}</span>
+            <span className="text-xs text-gray-500">Phone</span>
+            <span className="text-lg font-semibold text-gray-800">{earningDetails.phone}</span>
           </div>
           <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Commission</span>
-            <span className="text-lg font-semibold text-gray-800">{earningDetails.commission}</span>
+            <span className="text-xs text-gray-500">Subscription Plan</span>
+            <span className="text-lg font-semibold text-gray-800">
+              <span className={`px-2 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${earningDetails.subscriptionPlan === "Paid" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"}`}>
+                {earningDetails.subscriptionPlan}
+              </span>
+            </span>
           </div>
           <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Seller s Profit</span>
-            <span className="text-lg font-semibold text-gray-800">{earningDetails.profit}</span>
-          </div>
-          <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Transaction Date</span>
-            <span className="text-lg font-semibold text-gray-800">{earningDetails.date}</span>
+            <span className="text-xs text-gray-500">Price</span>
+            <span className="text-lg font-semibold text-gray-800">${earningDetails.price}</span>
           </div>
         </div>
-        <div className="mb-8 bg-gray-50 rounded-xl p-4 shadow-sm">
-          <span className="text-xs text-gray-500">Description</span>
-          <p className="text-base text-gray-700 mt-1">{earningDetails.description}</p>
+
+        <div className="bg-gray-50 rounded-xl p-4 shadow-sm mb-8">
+            <span className="text-xs text-gray-500">Joined Date</span>
+            <p className="text-base font-semibold text-gray-800 mt-1">{earningDetails.joinDate}</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Buyer</span>
-            <span className="text-base font-medium text-gray-800">{earningDetails.buyer}</span>
-          </div>
-          <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-            <span className="text-xs text-gray-500">Payment Method</span>
-            <span className="text-base font-medium text-gray-800">{earningDetails.paymentMethod}</span>
-          </div>
-        </div>
-        <button
-          onClick={() => router.back()}
+
+        <button 
+          onClick={() => router.back()} 
           className="mt-4 w-full px-6 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black shadow-md"
         >
           Go Back to List
