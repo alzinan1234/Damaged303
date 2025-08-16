@@ -1,5 +1,8 @@
 "use client"; // This directive is required for client-side functionality in App Router components
 
+
+import LottiePlayer from "@/components/LottiePlayer";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -87,19 +90,20 @@ export default function LoginPage() {
 
   return (
     // Updated background to white
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen ">
       <Toaster position="top-center" reverseOrder={false} />
       {/* Left Red Panel - now with image background and blur */}
       {/* This panel's background remains an image and its styling is unchanged */}
       <div
-        className="hidden lg:flex w-1/2     items-center justify-center  bg-cover bg-center bg-no-repeat"
+        className="hidden lg:flex w-1/2     items-center justify-center  bg-no-repeat "
+
         style={{
 
-          
           // Replaced Next.js image path with a placeholder URL
           backgroundImage: `url("/login-image.png")`,
         }}
       >
+      {/* <LottiePlayer src="https://lottie.host/YOUR_ANIMATION_ID.lottie" /> */}
       </div>
       {/* Right Login Panel */}
       {/* Updated background to white */}
