@@ -11,7 +11,7 @@ const dummyData = Array.from({ length: 50 }).map((_, i) => ({
   name: `User ${i + 1}`,
   email: `user${i + 1}@example.com`,
   phone: `555-010${i % 10}-00${i % 9}`,
-  subscriptionPlan: i % 3 === 0 ? "Freemium" : "Paid",
+  subscriptionPlan: i % 3 === 0 ? "Monthly" : "Yearly",
   price: (50 + i * 2.5).toFixed(2),
   joinDate: `${(i % 28) + 1} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'][i % 8]} 2024`,
 }));

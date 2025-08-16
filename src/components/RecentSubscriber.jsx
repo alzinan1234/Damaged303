@@ -1,8 +1,13 @@
 "use client";
+
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 // Client component for avatar image with fallback
 function AvatarImage({ src, alt, fallbackText }) {
+
+
+
   const [imgSrc, setImgSrc] = useState(src);
   return (
     <img
@@ -16,6 +21,16 @@ function AvatarImage({ src, alt, fallbackText }) {
 
 // Main component for the Recent Subscribers card
 const RecentSubscriber = () => {
+
+    const router = useRouter();
+
+  const handleSubscriber = () => {
+    router.push("/admin/earning"); // Navigate to subscriber details page
+   
+    // Navigate to subscriber details page
+    // Placeholder for any action when the subscriber is clicked
+    
+  }
   // State to manage whether to show all subscribers or a limited list
   const [showAll, setShowAll] = useState(false);
 
@@ -114,12 +129,12 @@ const RecentSubscriber = () => {
       </div>
 
       {/* View all button - only show if there are more than 3 subscribers and 'showAll' is false */}
-      {!showAll && subscribers.length > 3 && (
+      {/* {!showAll && subscribers.length > 3 && ( */}
         <button
-          className="inline-flex justify-start items-center gap-[5px] cursor-pointer focus:outline-none"
-          onClick={handleViewAllClick}
+          className="inline-flex justify-end items-center gap-[5px] cursor-pointer focus:outline-none"
+          onClick={handleSubscriber}
         >
-          <div className="text-black text-base font-semibold leading-7 ">
+          <div className="text-black text-base font-semibold leading-7 flex items-center justify-end">
             View all
           </div>
           {/* Arrow Icon */}
@@ -134,7 +149,7 @@ const RecentSubscriber = () => {
             </defs>
           </svg>
         </button>
-      )}
+      {/* )} */}
     </div>
   );
 };

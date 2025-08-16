@@ -18,10 +18,14 @@ import {
   Users2,
   UserPlus2,
   DiamondPlus,
+  FileVideo,
 } from "lucide-react";
+
 import Image from "next/image";
 import dreckks from "../../public/tika-food.svg"; // This import seems unused
 import barss from "../../public/icon/bars.png"; // This import seems unused
+import toast from "react-hot-toast";
+
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -32,7 +36,7 @@ const navItems = [
   },
 
   {
-    name: "Subscriber Overview",
+    name: "Subscription  Overview",
     href: "/admin/earning",
     icon: (props) => (
       <svg
@@ -60,9 +64,9 @@ const navItems = [
   },
  
   {
-    name: "Add Management",
+    name: "Ads Management",
     href: "/admin/ad-management",
-    icon: DiamondPlus,
+    icon: FileVideo,
   },
    {
     name: "Notifications",
@@ -79,6 +83,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   const handleLogout = () => {
     // Implement logout functionality here
     console.log("admin logged out");
+    toast.success("Logged out successfully");
     // Redirect to login page or perform any other action
     router.push("/"); // Example redirect
   };
