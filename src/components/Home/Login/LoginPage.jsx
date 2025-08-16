@@ -92,10 +92,12 @@ export default function LoginPage() {
       {/* Left Red Panel - now with image background and blur */}
       {/* This panel's background remains an image and its styling is unchanged */}
       <div
-        className="hidden lg:flex w-1/2   items-center justify-center p-8 bg-cover bg-center bg-no-repeat"
+        className="hidden lg:flex w-1/2     items-center justify-center  bg-cover bg-center bg-no-repeat"
         style={{
+
+          
           // Replaced Next.js image path with a placeholder URL
-          backgroundImage: `url("/hr-women.jpg")`,
+          backgroundImage: `url("/login-image.png")`,
         }}
       >
       </div>
