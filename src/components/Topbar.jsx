@@ -17,9 +17,9 @@ export default function Topbar({ onBellClick }) {
   };
 
   return (
-    <header className="flex items-center justify-between bg-white p-[7px] border-b border-[#D6D6D6]">
+    <header className="flex items-center justify-between bg-white p-[17px] border-b border-[#D6D6D6]">
       <div className="flex flex-col items-center pl-14 ">
-        <div className=" flex items-center gap-2">
+        {/* <div className=" flex items-center gap-2">
           <h1 className="text-[24px] font-semibold text-black">
             {" "}
             Hello Maietry{" "}
@@ -74,10 +74,10 @@ export default function Topbar({ onBellClick }) {
               />
             </svg>
           </span>
-        </div>
-        <p className="text-[#85878D] font-normal">
+        </div> */}
+        {/* <p className="text-[#85878D] font-normal">
           Let’s learn something new today!
-        </p>
+        </p> */}
       </div>
       <div className="flex items-center justify-end gap-6">
         {/* Notification Bell with onClick handler */}
