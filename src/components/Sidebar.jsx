@@ -1,7 +1,8 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { RxAvatar } from "react-icons/rx";
 
 import {
   LayoutDashboard,
@@ -25,7 +26,6 @@ import Image from "next/image";
 import dreckks from "../../public/tika-food.svg"; // This import seems unused
 import barss from "../../public/icon/bars.png"; // This import seems unused
 import toast from "react-hot-toast";
-
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -62,31 +62,69 @@ const navItems = [
       </svg>
     ),
   },
- 
+
   {
     name: "Ads Management",
     href: "/admin/ad-management",
     icon: FileVideo,
   },
-   {
+  {
     name: "Notifications",
     href: "/admin/notifications",
     icon: Bell,
   },
-  
+
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const router = useRouter();
+  const [accessToken, setAccessToken] = React.useState(null);
+
+  useEffect(() => {
+    // Check if the user is logged in
+    // get access token from cookies 
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("adminToken="))
+      ?.split("=")[1];
+      setAccessToken(token);
+  }, []);
 
   const handleLogout = () => {
-    // Implement logout functionality here
-    console.log("admin logged out");
-    toast.success("Logged out successfully");
-    // Redirect to login page or perform any other action
-    router.push("/"); // Example redirect
+    const payload = {
+      refresh: localStorage.getItem("adminTokenRefresh"),
+    };
+
+    fetch(
+      "https://parental-creek-latin-monroe.trycloudflare.com/api/auth/logout/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          // Clear local storage and cookies
+          localStorage.removeItem("adminToken");
+          localStorage.removeItem("adminTokenRefresh");
+          document.cookie =
+            "adminToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+          // Redirect to login page
+          router.push("/");
+          toast.success("Logged out successfully!");
+        } else {
+          toast.error("Logout failed. Please try again.");
+        }
+      });
   };
+
   const pathname = usePathname();
 
   return (
@@ -166,7 +204,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     isActive ? "bg-[#013D3B] text-white" : "text-[#000000]"
                   }`}
                 >
-                  <Icon className="w-5 h-5 mr-3" stroke={isActive ? 'white' : '#013D3B'} />
+                  <Icon
+                    className="w-5 h-5 mr-3"
+                    stroke={isActive ? "white" : "#013D3B"}
+                  />
                   <span className="font-medium text-[16px]">{name}</span>
                 </Link>
               );
@@ -177,16 +218,29 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           <div className="border-t border-[#D6D6D6] p-[30px] flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full overflow-hidden">
               {/* Placeholder image for Maietry Cruz */}
-              <Image
+              {/* <Image
                 src="/avterimage.jpg" // Example placeholder
                 alt="Maietry Cruz"
                 width={40}
                 height={40}
                 className="object-cover"
-              />
+              /> */}
+              {/* {
+                user?.userName ? <> */}
+                  {/* <Image
+                  src={user?.userImage || "/avterimage.jpg"} // Use user image or placeholder
+                  alt="Maietry Cruz"
+                  width={40}
+                  height={40}
+                  className="object-cover"
+                  />
+                </>
+                : */}
+                <RxAvatar size={40}/>
+              {/* } */}
             </div>
             <div>
-              <p className="text-black text-sm font-medium">Maietry Cruz</p>
+              <p className="text-black text-sm font-medium">N/A</p>
               <p className="text-gray-500 text-xs">anita@commerce.com</p>
             </div>
           </div>

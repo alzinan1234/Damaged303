@@ -1,11 +1,13 @@
 "use client"; // This directive is required for client-side functionality in App Router components
 
+import Image from "next/image";
 import React, { useState } from "react";
+// useRouter and Image from next/navigation and next/image are specific to the Next.js framework
+// and may not be available in all React environments.
+// We will use standard browser APIs instead.
 import toast, { Toaster } from "react-hot-toast";
-import Image from "next/image"; // Assuming Image component is used as in your previous code
 
-export default function App() {
-  // Changed to App for default export
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,11 +16,12 @@ export default function App() {
     e.preventDefault();
     setError(""); // Clear previous errors
     setLoading(true); // Indicate loading state
+    const toastId = toast.loading("Sending request...");
 
     // --- Client-side validation ---
     if (!email) {
       setError("Please enter your email address.");
-      toast.error("Please enter your email address.");
+      toast.error("Please enter your email address.", { id: toastId });
       setLoading(false);
       return;
     }
@@ -26,75 +29,83 @@ export default function App() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address.");
-      toast.error("Please enter a valid email address.");
+      toast.error("Please enter a valid email address.", { id: toastId });
       setLoading(false);
       return;
     }
 
-    // --- Simulate API Call for sending OTP (Replace with your actual backend call) ---
-    console.log("Attempting to send code to:", { email });
-
+    // --- API Call to send OTP ---
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
+      const response = await fetch(
+        "https://parental-creek-latin-monroe.trycloudflare.com/api/dashboard/auth/forgot-password/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: email }),
+        }
+      );
 
-      // Simulate success or failure
-      if (email === "test@example.com") {
-        // Example for a successful send
-        toast.success("OTP code sent to your email! (Simulated)");
-        // Redirect to OTP verification page on successful simulated send
-        window.location.href = "/Otp-Verification";
+      const data = await response.json();
+
+      if (response.ok) {
+        // Handle success
+        toast.success(data.message || "OTP code sent to your email!", {
+          id: toastId,
+        });
+        // Redirect to OTP verification page on success using standard browser navigation
+        window.location.href = `/Otp-Verification?email=${encodeURIComponent(
+          email
+        )}`;
       } else {
-        setError(
-          "Failed to send OTP. Please check your email and try again. (Simulated)"
-        );
-        toast.error("Failed to send OTP. (Simulated)");
+        // Handle server-side errors (e.g., email not found)
+        const errorMessage =
+          data.email?.[0] ||
+          data.message ||
+          "Failed to send OTP. Please check your email and try again.";
+        setError(errorMessage);
+        toast.error(errorMessage, { id: toastId });
       }
     } catch (err) {
-      console.error("Send code error:", err);
-      setError("An unexpected error occurred. Please try again.");
-      toast.error("An unexpected error occurred. Please try again.");
+      // Handle network or other unexpected errors
+      console.error("Forgot password error:", err);
+      const errorMessage = "An unexpected error occurred. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage, { id: toastId });
     } finally {
       setLoading(false); // End loading state
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#1A1A1A]">
+    <div className="flex min-h-screen bg-white">
       <Toaster position="top-center" reverseOrder={false} />
 
-      {/* Left Panel - Image background with blur */}
-      <div
-        className="hidden lg:flex w-1/2 items-center justify-center p-8 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${
-            "/arkive-image.png" // Using the provided image URL
-          })`,
-          // filter: "blur(4px)", // Apply blur effect (commented out as per your last input)
-          // WebkitFilter: "blur(4px)", // For Safari (commented out as per your last input)
-        }}
-      >
-        {/* No content needed inside this div as it's just a background */}
+      {/* Left Panel - Image background */}
+      <div className="hidden lg:flex w-1/2 login_bg items-center justify-center">
+        {/* This div is for the background image, styled via CSS */}
       </div>
 
       {/* Right Forgot Password Panel */}
-      <div className="w-full lg:w-1/2 bg-[#2D2D2D] flex items-center justify-center p-4 sm:p-8">
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-4 sm:p-8">
         <div className="md:w-[564px] p-10 rounded-[15px] flex flex-col justify-center items-center gap-10">
           <div className="self-stretch flex flex-col justify-start items-center gap-[30px]">
             <div className="self-stretch flex flex-col justify-center items-center gap-[30px]">
               <div className="w-full flex flex-col justify-start gap-[18px]">
+                {/* Replaced Next.js Image with standard HTML img tag */}
                 <Image
-                  src="/ark-logo.png"
+                  src="/side-bar-logo.png"
                   alt="Arkive"
-                  width={170}
-                  height={150}
-                  className="rounded-lg h-10"
+                  width={200}
+                  height={40}
+                  className="w-[200]"
                 />
-                <p className="self-stretch text-start text-white text-[24px] font-semibold ">
-                  Forget Password
+                <p className="self-stretch text-start text-black text-[24px] font-semibold">
+                  Forgot Password
                 </p>
-                <p className="self-stretch text-start text-[#FFF] text-sm font-semibold ">
-                  We will send the OTP code to your email for security in
-                  forgetting your password
+                <p className="self-stretch text-start text-black text-sm font-semibold">
+                  We will send an OTP code to your email to reset your password.
                 </p>
               </div>
               <form
@@ -106,24 +117,25 @@ export default function App() {
                   <div className="self-stretch flex flex-col justify-start items-start gap-2">
                     <label
                       htmlFor="email"
-                      className="self-stretch text-white text-sm font-normal "
+                      className="self-stretch text-black text-sm font-normal"
                     >
-                      Email adress
+                      Email address
                     </label>
                     <input
                       type="email"
                       id="email"
-                      className="self-stretch h-10 w-full px-3 py-2.5  rounded-md border border-[#DCDCDC] text-white focus:outline-none focus:ring-1 focus:ring-[#66B8FF] "
-                      placeholder=""
+                      className="self-stretch h-10 w-full px-3 py-2.5 rounded-md border border-[#DCDCDC] text-black focus:outline-none focus:ring-1 focus:ring-[#66B8FF]"
+                      placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      aria-label="Email address for password reset"
                     />
                   </div>
                 </div>
 
                 {error && (
-                  <p className="text-red-500 text-sm text-center mt-2 ">
+                  <p className="text-red-500 text-sm text-center mt-2 w-full">
                     {error}
                   </p>
                 )}
@@ -131,9 +143,7 @@ export default function App() {
                 {/* Send Code Button */}
                 <button
                   type="submit"
-                  className={`w-full h-10 mx-auto mt-4 bg-[#FFF] text-[#23272E] rounded-md text-sm font-normal font-[Inter] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] flex justify-center items-center transition duration-300 ease-in-out  ${
-                    loading ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full h-10 mx-auto mt-4 bg-[#013D3B] text-white rounded-md text-sm font-normal font-[Inter] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] flex justify-center items-center transition duration-300 ease-in-out hover:bg-[#025a57] disabled:opacity-70 disabled:cursor-not-allowed`}
                   disabled={loading}
                 >
                   {loading ? "Sending Code..." : "Send Code"}

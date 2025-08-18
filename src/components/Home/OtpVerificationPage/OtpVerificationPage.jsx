@@ -5,14 +5,24 @@ import React, { useState, useRef, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function OtpVerificationPage() {
-  // Changed to App for default export
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(60); // 60 seconds for resend
   const [canResend, setCanResend] = useState(false);
   const otpInputRefs = useRef([]);
 
+  // Effect to get email from URL query parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailFromUrl = urlParams.get("email");
+    if (emailFromUrl) {
+      setEmail(decodeURIComponent(emailFromUrl));
+    }
+  }, []);
+
+  // Effect for the resend timer
   useEffect(() => {
     let timer;
     if (resendTimer > 0 && !canResend) {
@@ -33,7 +43,7 @@ export default function OtpVerificationPage() {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Move focus to next input if a digit is entered
+    // Move focus to the next input if a digit is entered
     if (value && index < otp.length - 1) {
       otpInputRefs.current[index + 1].focus();
     }
@@ -41,104 +51,122 @@ export default function OtpVerificationPage() {
 
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      // Move focus to previous input on backspace if current is empty
+      // Move focus to the previous input on backspace if the current one is empty
       otpInputRefs.current[index - 1].focus();
     }
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = async () => {
     if (canResend) {
-      setResendTimer(60);
-      setCanResend(false);
-      toast.success("OTP code re-sent! (Simulated)");
-      // Add actual API call to resend OTP here
+      setLoading(true);
+      const toastId = toast.loading("Resending OTP...");
+      try {
+        // --- API Call to resend OTP ---
+        const response = await fetch(
+          "https://parental-creek-latin-monroe.trycloudflare.com/api/dashboard/auth/forgot-password/",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          toast.success(data.message || "A new OTP has been sent.", {
+            id: toastId,
+          });
+          setResendTimer(60); // Reset timer
+          setCanResend(false);
+        } else {
+          toast.error(data.message || "Failed to resend OTP.", { id: toastId });
+        }
+      } catch (err) {
+        console.error("Resend OTP error:", err);
+        toast.error("An unexpected error occurred.", { id: toastId });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
-    setLoading(true); // Indicate loading state
+    setError("");
+    setLoading(true);
+    const toastId = toast.loading("Verifying OTP...");
 
     const enteredOtp = otp.join("");
 
     // --- Client-side validation ---
-    if (enteredOtp.length !== 6 || !/^\d{6}$/.test(enteredOtp)) {
-      setError("Please enter a valid 6-digit OTP.");
-      toast.error("Please enter a valid 6-digit OTP.");
+    if (enteredOtp.length !== 4 || !/^\d{4}$/.test(enteredOtp)) {
+      setError("Please enter a valid 4-digit OTP.");
+      toast.error("Please enter a valid 4-digit OTP.", { id: toastId });
       setLoading(false);
       return;
     }
 
-    // --- Simulate API Call for OTP verification (Replace with your actual backend call) ---
-    console.log("Attempting to verify OTP:", { enteredOtp });
+    // --- API Call for OTP verification ---
+    console.log("Attempting to verify OTP:", { otp: enteredOtp, email });
 
     try {
+      // Replace with your actual backend verification call
       await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
 
       // Simulate success or failure
-      if (enteredOtp === "123456") {
-        // Example for a successful OTP
-        toast.success(
-          "OTP Verified! Redirecting to password reset. (Simulated)"
-        );
-        // In a real app, redirect to a password reset page
-        window.location.href = "/set-new-password";
+      if (enteredOtp === "1234") {
+        // Using a simple OTP for simulation
+        toast.success("OTP Verified! Redirecting...", { id: toastId });
+        // Redirect to a password reset page, passing the OTP and email
+        window.location.href = `/set-new-password?email=${encodeURIComponent(
+          email
+        )}&otp=${encodeURIComponent(enteredOtp)}`;
       } else {
-        setError("Invalid OTP. Please try again. (Simulated)");
-        toast.error("Invalid OTP. (Simulated)");
+        setError("Invalid OTP. Please try again.");
+        toast.error("Invalid OTP. Please try again.", { id: toastId });
       }
     } catch (err) {
       console.error("OTP verification error:", err);
       setError("An unexpected error occurred. Please try again.");
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.error("An unexpected error occurred.", { id: toastId });
     } finally {
-      setLoading(false); // End loading state
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#1A1A1A] ">
+    <div className="flex min-h-screen bg-white">
       <Toaster position="top-center" reverseOrder={false} />
 
-      {/* Left Panel - Image background with blur */}
-      <div
-        className="hidden lg:flex w-1/2 items-center justify-center p-8 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${
-            "/arkive-image.png" // Using the provided image URL
-          })`,
-          // filter: "blur(4px)", // Apply blur effect
-          // WebkitFilter: "blur(4px)", // For Safari
-        }}
-      >
-        {/* No content needed inside this div as it's just a background */}
+      {/* Left Panel - Image background */}
+      <div className="hidden lg:flex w-1/2 login_bg items-center justify-center">
+        {/* Background image is handled by the 'login_bg' class */}
       </div>
 
       {/* Right OTP Verification Panel */}
-      <div className="w-full lg:w-1/2 bg-[#2D2D2D] flex items-center justify-center p-4 sm:p-8">
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-4 sm:p-8">
         <div className="md:w-[564px] p-10 rounded-[15px] flex flex-col justify-center items-center gap-10">
           <div className="self-stretch flex flex-col justify-start items-center gap-[30px]">
             <div className="self-stretch flex flex-col justify-center items-center gap-[30px]">
               <div className="w-full flex flex-col justify-start gap-[18px]">
-                {/* ARKIVE Logo/Text */}
                 <Image
-                  src="/ark-logo.png"
+                  src="/side-bar-logo.png"
                   alt="Arkive"
-                  width={170}
-                  height={150}
-                  className="rounded-lg h-10"
+                  width={200}
+                  height={40}
+                  className="w-[200]"
                 />
-                <p className="self-stretch text-start text-white text-[24px] font-semibold ">
+                <p className="self-stretch text-start text-black text-[24px] font-semibold">
                   OTP Verification
                 </p>
-                <p className="self-stretch text-start text-[#FFF] text-sm font-semibold">
-                  Enter 6-digit Code for getting your password
+                <p className="self-stretch text-start text-black text-sm font-semibold">
+                  Enter the 4-digit code sent to your email.
                 </p>
-                <p className="self-stretch text-start text-[#FFF] text-sm font-semibold ">
-                  We have sent code to{" "}
-                  <span className="text-white">tan@gmail.com</span> to verify
-                  your registration
+                <p className="self-stretch text-start text-gray-600 text-sm">
+                  We have sent the code to{" "}
+                  <span className="text-black font-medium">
+                    {email || "your email"}
+                  </span>
+                  .
                 </p>
               </div>
               <form
@@ -156,7 +184,7 @@ export default function OtpVerificationPage() {
                       onChange={(e) => handleOtpChange(e, index)}
                       onKeyDown={(e) => handleKeyDown(e, index)}
                       ref={(el) => (otpInputRefs.current[index] = el)}
-                      className="w-full h-12 text-center text-white bg-[#121212] rounded-md border border-[#DCDCDC] focus:outline-none focus:ring-1 focus:ring-[#66B8FF] font-[Inter] text-xl"
+                      className="w-full h-12 text-center text-black bg-gray-100 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 font-sans text-xl"
                       required
                     />
                   ))}
@@ -168,20 +196,21 @@ export default function OtpVerificationPage() {
                     <button
                       type="button"
                       onClick={handleResendCode}
-                      className="text-[#CCE6FF] text-xs font-normal font-[Inter] hover:underline"
+                      className="text-blue-600 text-xs font-medium hover:underline"
+                      disabled={loading}
                     >
                       Resend Code
                     </button>
                   ) : (
-                    <span className="text-[#B0B0B0] text-xs font-normal font-[Inter]">
-                      Resend code{" "}
+                    <span className="text-gray-500 text-xs font-normal">
+                      Resend code in{" "}
                       {resendTimer < 10 ? `0${resendTimer}` : resendTimer}s
                     </span>
                   )}
                 </div>
 
                 {error && (
-                  <p className="text-red-500 text-sm text-center mt-2 font-[Inter]">
+                  <p className="text-red-500 text-sm text-center mt-2">
                     {error}
                   </p>
                 )}
@@ -189,9 +218,7 @@ export default function OtpVerificationPage() {
                 {/* Verify Button */}
                 <button
                   type="submit"
-                  className={`w-full h-10 mx-auto mt-4 bg-[#FFF] text-[#23272E] rounded-md text-sm font-normal font-[Inter] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] flex justify-center items-center transition duration-300 ease-in-out  ${
-                    loading ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full h-10 mx-auto mt-4 bg-[#013D3B] text-white rounded-md text-sm font-normal shadow-sm flex justify-center items-center transition duration-300 ease-in-out hover:bg-[#025a57] disabled:opacity-70 disabled:cursor-not-allowed`}
                   disabled={loading}
                 >
                   {loading ? "Verifying..." : "Verify"}

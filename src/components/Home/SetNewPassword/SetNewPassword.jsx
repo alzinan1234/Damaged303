@@ -1,8 +1,7 @@
 "use client"; // This directive is required for client-side functionality in App Router components
 
-import React, { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
 import Image from "next/image";
+import React, { useState } from "react";
 
 export default function App() {
   // Changed to App for default export
@@ -21,21 +20,18 @@ export default function App() {
     // --- Client-side validation ---
     if (!newPassword || !confirmPassword) {
       setError("Please enter both new password and confirm password.");
-      toast.error("Please enter both new password and confirm password.");
       setLoading(false);
       return;
     }
 
     if (newPassword.length < 6) {
       setError("Password must be at least 6 characters long.");
-      toast.error("Password must be at least 6 characters long.");
       setLoading(false);
       return;
     }
 
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
-      toast.error("Passwords do not match.");
       setLoading(false);
       return;
     }
@@ -46,56 +42,41 @@ export default function App() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
 
-      // Simulate success or failure
-      // For demonstration, always succeed if validation passes
-      toast.success("Password has been reset successfully! (Simulated)");
       // In a real app, redirect to login page after successful password reset
-      window.location.href = "/";
+      console.log("Password has been reset successfully! (Simulated)");
     } catch (err) {
       console.error("Set new password error:", err);
       setError("An unexpected error occurred. Please try again.");
-      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false); // End loading state
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#1A1A1A]">
-      <Toaster position="top-center" reverseOrder={false} />
-
+    <div className="flex min-h-screen bg-white font-[Inter]">
       {/* Left Panel - Image background with blur */}
-      <div
-        className="hidden lg:flex w-1/2 items-center justify-center p-8 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${
-            "/arkive-image.png" // Using the provided image URL
-          })`,
-          // filter: "blur(4px)", // Apply blur effect
-          // WebkitFilter: "blur(4px)", // For Safari
-        }}
-      >
-        {/* No content needed inside this div as it's just a background */}
+      <div className="hidden lg:flex w-1/2 login_bg p-8 items-center justify-center">
+        {/* This div is for the background image, styled via CSS */}
       </div>
 
       {/* Right Set New Password Panel */}
-      <div className="w-full lg:w-1/2 bg-[#2D2D2D] flex items-center justify-center p-4 sm:p-8">
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-4 sm:p-8">
         <div className="md:w-[564px] p-10 rounded-[15px] flex flex-col justify-center items-center gap-10">
           <div className="self-stretch flex flex-col justify-start items-center gap-[30px]">
             <div className="self-stretch flex flex-col justify-center items-center gap-[30px]">
               <div className="w-full flex flex-col justify-start gap-[18px]">
-                {/* ARKIVE Logo/Text */}
+                {/* Logo/Text */}
                 <Image
-                  src="/ark-logo.png"
+                  src="/side-bar-logo.png"
                   alt="Arkive"
-                  width={170}
-                  height={150}
-                  className="rounded-lg h-10"
+                  width={200}
+                  height={40}
+                  className="w-[200]"
                 />
-                <p className="self-stretch text-start text-white text-[24px] font-semibold ">
+                <p className="self-stretch text-start text-gray-900 text-[24px] font-semibold ">
                   Set New Password
                 </p>
-                <p className="self-stretch text-start text-[#FFF] text-sm font-semibold ">
+                <p className="self-stretch text-start text-gray-700 text-sm font-semibold ">
                   Enter your new password and make sure you remember it:
                 </p>
               </div>
@@ -107,7 +88,7 @@ export default function App() {
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
                   <label
                     htmlFor="newPassword"
-                    className="self-stretch text-white text-sm font-semibold "
+                    className="self-stretch text-gray-900 text-sm font-semibold "
                   >
                     Password
                   </label>
@@ -115,7 +96,7 @@ export default function App() {
                     <input
                       type={showNewPassword ? "text" : "password"}
                       id="newPassword"
-                      className="h-10 px-3 py-2.5 font-semibold  rounded-md border border-[#DCDCDC] text-white focus:outline-none focus:ring-1 focus:ring-[#66B8FF]  w-full pr-10"
+                      className="h-10 px-3 py-2.5 font-semibold rounded-md border border-gray-300 text-gray-900 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#66B8FF] w-full pr-10"
                       placeholder=""
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
@@ -168,7 +149,7 @@ export default function App() {
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
                   <label
                     htmlFor="confirmPassword"
-                    className="self-stretch text-white text-sm font-semibold "
+                    className="self-stretch text-gray-900 text-sm font-semibold "
                   >
                     Confirmed Password
                   </label>
@@ -176,7 +157,7 @@ export default function App() {
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       id="confirmPassword"
-                      className="h-10 px-3 py-2.5  rounded-md border font-semibold border-[#DCDCDC] text-white focus:outline-none focus:ring-1 focus:ring-[#66B8FF]  w-full pr-10"
+                      className="h-10 px-3 py-2.5 rounded-md border font-semibold border-gray-300 text-gray-900 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#66B8FF] w-full pr-10"
                       placeholder=""
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
@@ -236,7 +217,7 @@ export default function App() {
                 {/* Save Changes Button */}
                 <button
                   type="submit"
-                  className={`w-full h-10 mx-auto mt-4 bg-[#FFF] text-[#23272E] rounded-md text-sm font-normal font-[Inter] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] flex justify-center items-center transition duration-300 ease-in-out  ${
+                  className={`w-full h-10 mx-auto mt-4 bg-[#013D3B] text-white rounded-md text-sm font-normal font-[Inter] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] flex justify-center items-center transition duration-300 ease-in-out ${
                     loading ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                   disabled={loading}
