@@ -2,6 +2,7 @@
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import toast, { Toaster } from "react-hot-toast";
+import hrLogo from '../../../../public/side-bar-logo.png'
 
 export default function ForgotPasswordFlow() {
   const [step, setStep] = useState("forgot"); // "forgot" | "otp" | "reset"
@@ -170,7 +171,7 @@ export default function ForgotPasswordFlow() {
       <Toaster position="top-center" reverseOrder={false} />
 
       <div className="w-full max-w-md p-6 rounded-lg shadow-md border">
-        <Image src="/side-bar-logo.png" alt="Logo" width={180} height={40} />
+        <Image src={hrLogo} alt="Logo" width={180} height={40} />
 
         {/* Step 1: Forgot Password */}
         {step === "forgot" && (
