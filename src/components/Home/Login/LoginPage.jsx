@@ -5,7 +5,8 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import leftSideImage from "../../../../public/login-image.png"; // Importing the left side image
+import leftSideImage from "../../../../public/login-image.png"
+import hrLogo from '../../../../public/side-bar-logo.png' // Importing the left side image
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -164,7 +165,7 @@ export default function LoginPage() {
               <div className="w-full  flex flex-col justify-start gap-[18px]">
                 {/* Replaced Next.js Image component with a standard <img> tag */}
                 <Image
-                  src="/side-bar-logo.png"
+                  src={hrLogo}
                   alt="Arkive"
                   width={200}
                   height={40}
