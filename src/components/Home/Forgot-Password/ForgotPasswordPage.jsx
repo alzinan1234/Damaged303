@@ -250,53 +250,25 @@ export default function ForgotPasswordFlow() {
         {step === "reset" && (
           <form onSubmit={handleResetSubmit} className="mt-6 space-y-4">
             <h2 className="text-xl font-semibold">Set New Password</h2>
-            <div className="relative">
+            <div>
               <input
-                type={showNewPassword ? "text" : "password"}
-                className="w-full border p-2 rounded pr-10"
+                type="password"
+                className="w-full border p-2 rounded"
                 placeholder="New Password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
               />
-              <span
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                onClick={() => setShowNewPassword((prev) => !prev)}
-              >
-                {showNewPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M9.88 9.88A3 3 0 0012 15a3 3 0 002.12-5.12M15 15a6.978 6.978 0 01-3 0m0 0a6.978 6.978 0 01-3 0m0 0a6.978 6.978 0 01-3 0m0 0a6.978 6.978 0 01-3 0" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 0c0 3.866-3.582 7-8 7s-8-3.134-8-7 3.582-7 8-7 8 3.134 8 7z" />
-                  </svg>
-                )}
-              </span>
             </div>
-            <div className="relative">
+            <div>
               <input
-                type={showConfirmPassword ? "text" : "password"}
-                className="w-full border p-2 rounded pr-10"
+                type="password"
+                className="w-full border p-2 rounded"
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
-              <span
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
-              >
-                {showConfirmPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M9.88 9.88A3 3 0 0012 15a3 3 0 002.12-5.12M15 15a6.978 6.978 0 01-3 0m0 0a6.978 6.978 0 01-3 0m0 0a6.978 6.978 0 01-3 0m0 0a6.978 6.978 0 01-3 0" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 0c0 3.866-3.582 7-8 7s-8-3.134-8-7 3.582-7 8-7 8 3.134 8 7z" />
-                  </svg>
-                )}
-              </span>
             </div>
             <button
               type="submit"
