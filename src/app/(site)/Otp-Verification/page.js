@@ -6,8 +6,8 @@ import React from 'react'
 const OtpVerification = () => {
   return (
     <div>
-    
-  <OtpVerificationPage/>
+{/*     
+  <OtpVerificationPage/> */}
     </div>
   )
 }

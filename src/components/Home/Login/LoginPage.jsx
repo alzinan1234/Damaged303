@@ -5,7 +5,7 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import leftSideImage from "../../../../public/login-image.png"
+
 import hrLogo from '../../../../public/side-bar-logo.png' // Importing the left side image
 
 export default function LoginPage() {
