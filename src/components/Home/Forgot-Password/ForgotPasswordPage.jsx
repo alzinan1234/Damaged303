@@ -30,7 +30,7 @@ export default function ForgotPasswordFlow() {
 
     try {
       const res = await fetch(
-        "https://palace-flower-dive-enter.trycloudflare.com/api/dashboard/auth/forgot-password/",
+        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/forgot-password/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -86,7 +86,7 @@ export default function ForgotPasswordFlow() {
 
     try {
       const res = await fetch(
-        "https://palace-flower-dive-enter.trycloudflare.com/api/dashboard/auth/resend-otp/",
+        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/resend-otp/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -129,7 +129,7 @@ export default function ForgotPasswordFlow() {
 
     try {
       const res = await fetch(
-        "https://palace-flower-dive-enter.trycloudflare.com/api/dashboard/auth/reset-password/",
+        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/reset-password/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

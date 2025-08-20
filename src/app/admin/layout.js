@@ -52,7 +52,7 @@ export default function RootLayout({ children }) {
       const tokenValue = token.split("=")[1];
       // Set token in headers for all fetch requests
       fetch(
-        `https://palace-flower-dive-enter.trycloudflare.com/api/auth/profile/`,
+        `https://maintains-usb-bell-with.trycloudflare.com/api/auth/profile/`,
         {
           method: "GET",
           headers: {

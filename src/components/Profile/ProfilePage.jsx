@@ -45,7 +45,7 @@ export default function ProfilePage() {
       const tokenValue = token.split("=")[1];
       // Set token in headers for all fetch requests
       fetch(
-        `https://palace-flower-dive-enter.trycloudflare.com/api/auth/profile/`,
+        `https://maintains-usb-bell-with.trycloudflare.com/api/auth/profile/`,
         {
           method: "GET",
           headers: {
@@ -80,7 +80,7 @@ export default function ProfilePage() {
       const token = tokenCookie.split("=")[1];
 
       const res = await axios.post(
-        "https://palace-flower-dive-enter.trycloudflare.com/api/auth/profile/",
+        "https://maintains-usb-bell-with.trycloudflare.com/api/auth/profile/",
         formData,
         {
           headers: {

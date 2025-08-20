@@ -91,13 +91,15 @@ const Sidebar = ({ isOpen, setIsOpen, adminInfo }) => {
     setAccessToken(token);
   }, []);
 
+  console.log(accessToken)
+
   const handleLogout = () => {
     const payload = {
       refresh: localStorage.getItem("adminTokenRefresh"),
     };
 
     fetch(
-      "https://parental-creek-latin-monroe.trycloudflare.com/api/auth/logout/",
+      "https://maintains-usb-bell-with.trycloudflare.com/api/auth/logout/",
       {
         method: "POST",
         headers: {

@@ -11,7 +11,7 @@ export default function ChangePasswordForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous messages
+    setMessage("");
     setMessageType("");
 
     if (newPassword !== confirmedPassword) {
@@ -20,23 +20,60 @@ export default function ChangePasswordForm() {
       return;
     }
 
-    // In a real application, you would send this data to your backend API
-    // For demonstration purposes, we'll simulate a successful change
-    setTimeout(() => {
-      setMessage("Password changed successfully!");
-      setMessageType("success");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmedPassword("");
-    }, 1000);
+    // IMPORTANT: You need to get the user's auth token,
+    // likely from localStorage or cookies after they log in.
+    const authToken = localStorage.getItem("authToken"); 
+
+    if (!authToken) {
+        setMessage("You are not authorized. Please log in again.");
+        setMessageType("error");
+        return;
+    }
+
+    try {
+      const response = await fetch("https://maintains-usb-bell-with.trycloudflare.com/api/auth/password/change/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add the Authorization header
+          "Authorization": `Bearer ${authToken}` 
+        },
+        // Match the keys from your Postman request body
+        body: JSON.stringify({
+          "old_password": currentPassword,
+          "new_password": newPassword,
+          "new_password2": confirmedPassword
+        })
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        // Handle potential validation errors from the API
+        let errorMessage = "Failed to change password.";
+        if (result && typeof result === 'object') {
+            // Combine multiple error messages if the API sends them
+            errorMessage = Object.values(result).flat().join(' ');
+        }
+        setMessage(errorMessage);
+        setMessageType("error");
+      } else {
+        setMessage(result.message || "Password changed successfully!");
+        setMessageType("success");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmedPassword("");
+      }
+    } catch (err) {
+      setMessage("An error occurred. Please try again.");
+      setMessageType("error");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="p-6 flex flex-col items-center">
-      {" "}
       {/* Added flex-col and items-center to center form fields */}
       <div className="mb-4 w-full max-w-[982px]">
-        {" "}
         {/* Constrain div width for centering */}
         <label
           htmlFor="currentPassword"
@@ -54,7 +91,6 @@ export default function ChangePasswordForm() {
         />
       </div>
       <div className="mb-4 w-full max-w-[982px]">
-        {" "}
         {/* Constrain div width for centering */}
         <label
           htmlFor="newPassword"
@@ -72,7 +108,6 @@ export default function ChangePasswordForm() {
         />
       </div>
       <div className="mb-6 w-full max-w-[982px]">
-        {" "}
         {/* Constrain div width for centering */}
         <label
           htmlFor="confirmedPassword"
@@ -102,7 +137,6 @@ export default function ChangePasswordForm() {
         <button
           type="submit"
           className="bg-[#013D3B] hover:bg-opacity-80 text-white font-bold w-full py-3 px-4 rounded-[4px] focus:outline-none focus:shadow-outline"
-        
         >
           Save Changes
         </button>

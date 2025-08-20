@@ -43,7 +43,7 @@ export default function LoginPage() {
     try {
       console.log("Test before call")
       const response = await fetch(
-        "https://palace-flower-dive-enter.trycloudflare.com/api/dashboard/auth/login/",
+        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/login/",
         {
           method: "POST",
           headers: {
@@ -73,8 +73,9 @@ export default function LoginPage() {
         const token = data.data.tokens.access;
         const tokenRefresh = data.data.tokens.refresh;
 
-        if (tokenRefresh) {
+        if (tokenRefresh && token) {
           localStorage.setItem("adminTokenRefresh", tokenRefresh);
+          localStorage.setItem("authToken", token);
         }
 
         if (token) {
