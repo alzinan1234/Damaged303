@@ -3,8 +3,9 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; // Import useRouter
+import { RxAvatar } from "react-icons/rx";
 
-export default function Topbar({ onBellClick }) {
+export default function Topbar({ onBellClick , adminInfo }) {
   const router = useRouter();
   
   const handleBellClick = () => {
@@ -118,12 +119,17 @@ export default function Topbar({ onBellClick }) {
           className="relative rounded-full cursor-pointer"
           onClick={handleUserImageClick}
         >
-          <Image
-            src="/image/userImage.png"
-            alt="User Icon"
-            width={40}
-            height={40}
-          />
+              {adminInfo?.profile_picture ? (
+                          <Image
+                            src={adminInfo?.profile_picture} // Example placeholder
+                            alt={adminInfo?.name || "Admin"}
+                            width={40}
+                            height={40}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <RxAvatar size={40} />
+                        )}
         </div>
       </div>
     </header>

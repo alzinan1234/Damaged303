@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./admin.css";
 import Sidebar from "@/components/Sidebar";
@@ -18,14 +18,15 @@ const geistMono = Geist_Mono({
 });
 
 const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'], // choose weights you need
-  variable: '--font-montserrat', // optional for using with Tailwind
-  display: 'swap',
-})
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"], // choose weights you need
+  variable: "--font-montserrat", // optional for using with Tailwind
+  display: "swap",
+});
 
 export default function RootLayout({ children }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [adminInfo, setAdminInfo] = useState(null);
 
   // State to control whether NotificationPage is shown
   const [showNotifications, setShowNotifications] = useState(false);
@@ -40,13 +41,50 @@ export default function RootLayout({ children }) {
     setShowNotifications(false);
   };
 
+  const baseUrl = process.env.BASE_URL;
+
+  useEffect(() => {
+    // get token from cookie
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("adminToken"));
+    if (token) {
+      const tokenValue = token.split("=")[1];
+      // Set token in headers for all fetch requests
+      fetch(
+        `https://palace-flower-dive-enter.trycloudflare.com/api/auth/profile/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenValue}`,
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setAdminInfo(data?.data);
+        });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => setAdminInfo(e.detail);
+    window.addEventListener("profileUpdated", handler);
+    return () => window.removeEventListener("profileUpdated", handler);
+  }, []);
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}
       >
         <div className="flex bg-white  text-black min-h-screen">
-          <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+          <Sidebar
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            adminInfo={adminInfo}
+          />
 
           <main
             className={`transition-all duration-300 ease-in-out flex-1 flex flex-col ${

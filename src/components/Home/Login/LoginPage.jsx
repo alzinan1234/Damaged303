@@ -37,10 +37,13 @@ export default function LoginPage() {
       return;
     }
 
+    console.log("test")
+
     // --- Real API Call ---
     try {
+      console.log("Test before call")
       const response = await fetch(
-        "https://parental-creek-latin-monroe.trycloudflare.com/api/dashboard/auth/login/",
+        "https://palace-flower-dive-enter.trycloudflare.com/api/dashboard/auth/login/",
         {
           method: "POST",
           headers: {
@@ -53,7 +56,13 @@ export default function LoginPage() {
         }
       );
 
+      console.log("test after call")
+
+      console.log("response", response)
+
       const data = await response.json();
+
+      console.log("data", data)
 
       if (response.ok) {
         // Admin login successful

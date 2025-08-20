@@ -77,18 +77,18 @@ const navItems = [
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
-const Sidebar = ({ isOpen, setIsOpen }) => {
+const Sidebar = ({ isOpen, setIsOpen, adminInfo }) => {
   const router = useRouter();
   const [accessToken, setAccessToken] = React.useState(null);
 
   useEffect(() => {
     // Check if the user is logged in
-    // get access token from cookies 
+    // get access token from cookies
     const token = document.cookie
       .split("; ")
       .find((row) => row.startsWith("adminToken="))
       ?.split("=")[1];
-      setAccessToken(token);
+    setAccessToken(token);
   }, []);
 
   const handleLogout = () => {
@@ -218,16 +218,20 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           <div className="border-t border-[#D6D6D6] p-[30px] flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full overflow-hidden">
               {/* Placeholder image for Maietry Cruz */}
-              {/* <Image
-                src="/avterimage.jpg" // Example placeholder
-                alt="Maietry Cruz"
-                width={40}
-                height={40}
-                className="object-cover"
-              /> */}
+              {adminInfo?.profile_picture ? (
+                <Image
+                  src={adminInfo?.profile_picture} // Example placeholder
+                  alt={adminInfo?.name || "Admin"}
+                  width={40}
+                  height={40}
+                  className="object-cover"
+                />
+              ) : (
+                <RxAvatar size={40} />
+              )}
               {/* {
                 user?.userName ? <> */}
-                  {/* <Image
+              {/* <Image
                   src={user?.userImage || "/avterimage.jpg"} // Use user image or placeholder
                   alt="Maietry Cruz"
                   width={40}
@@ -236,12 +240,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   />
                 </>
                 : */}
-                <RxAvatar size={40}/>
+              {/* <RxAvatar size={40}/> */}
               {/* } */}
             </div>
             <div>
-              <p className="text-black text-sm font-medium">N/A</p>
-              <p className="text-gray-500 text-xs">anita@commerce.com</p>
+              <p className="text-black text-sm font-medium">
+                {adminInfo?.name || "N/A"}
+              </p>
+              <p className="text-gray-500 text-xs">
+                {adminInfo?.email || "N/A"}
+              </p>
             </div>
           </div>
 
