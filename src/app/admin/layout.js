@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "./admin.css";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
@@ -86,6 +87,8 @@ export default function RootLayout({ children }) {
             adminInfo={adminInfo}
           />
 
+
+            
           <main
             className={`transition-all duration-300 ease-in-out flex-1 flex flex-col ${
               isOpen ? "ml-64" : "ml-0"
@@ -93,6 +96,7 @@ export default function RootLayout({ children }) {
           >
             {/* Topbar always visible */}
             <Topbar onBellClick={handleBellClick} />
+          
 
             {/* Conditionally render NotificationPage or MainContent */}
             {showNotifications ? (
@@ -102,6 +106,8 @@ export default function RootLayout({ children }) {
             ) : (
               <div className="p-4">{children}</div>
             )}
+            {/* Toast container for react-hot-toast */}
+            <Toaster position="top-center" reverseOrder={false} />
           </main>
         </div>
       </body>

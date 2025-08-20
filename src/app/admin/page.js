@@ -53,19 +53,19 @@ const Admin = () => {
           <div className=" w-full flex flex-col md:flex-row gap-4">
             {/* Ensure minimum height for chart visibility */}
             <EarningSummaryChart  />
-            <RecentSubscriber />
+            <AlcoholConsumptionTrendChart />
           </div>
 
           {/* Alcohol Consumption Trend Line Chart */}
           {/* <div className="min-h-[340px]"> */}
 
           {/* Ensure minimum height for chart visibility */}
-          {/* <AlcoholConsumptionTrendChart /> */}
+          
           {/* </div> */}
         </div>
 
         <div className="p-4">
-          {/* <RegistrationTable /> */}
+         <RecentSubscriber />
         </div>
       </div>
     </>

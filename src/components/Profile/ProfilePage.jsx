@@ -11,7 +11,7 @@ import axios from "axios";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("changePassword");
+  const [activeTab, setActiveTab] = useState("editProfile");
 
   const [profileImage, setProfileImage] = useState("/image/userImage.png");
   const fileInputRef = useRef(null);
@@ -88,13 +88,14 @@ export default function ProfilePage() {
           },
         }
       );
+      toast.success("Profile updated successfully!", { id: toastId });
+      console.log("test")
 
       setAdminInfo(res.data?.data);
       window.dispatchEvent(
         new CustomEvent("profileUpdated", { detail: res.data?.data })
       );
 
-      toast.success("Profile updated successfully!", { id: toastId });
     } catch (err) {
       const errorMessage =
         err.response?.data?.message || err.message || "An error occurred.";
@@ -129,7 +130,7 @@ export default function ProfilePage() {
               className="relative rounded-full border-4 border-gray-300 cursor-pointer" // Adjusted border color for visibility on white bg
               onClick={handleImageClick}
             >
-              <div className="w-[100px] h-[100px] rounded-full overflow-hidden">
+              <div className="w-[100px] h-[100px] rounded-full overflow-hidden flex justify-center items-center">
                 {adminInfo?.profileImageUrl &&
                 adminInfo?.profileImageUrl !== null ? (
                   <Image
@@ -137,7 +138,9 @@ export default function ProfilePage() {
                     alt="User Profile"
                     width={100}
                     height={100}
-                    className="rounded-full object-cover"
+                    className="rounded-full flex justify-center items-center"
+
+                     style={{ objectFit: "cover" }} 
                   />
                 ) : (
                   <RxAvatar size={60} className="text-gray-500" />
@@ -244,7 +247,7 @@ export default function ProfilePage() {
                     Contact No
                   </label>
                   <input
-                    type="tel"
+                    type="number"
                     id="contactNo"
                     onChange={(e) => setContactNo(e.target.value)}
                     className="shadow appearance-none rounded w-full h-[50px] py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border border-[#C3C3C3] bg-gray-100" // Changed text and background of input
