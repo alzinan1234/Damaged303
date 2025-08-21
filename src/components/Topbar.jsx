@@ -5,13 +5,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation"; // Import useRouter
 import { RxAvatar } from "react-icons/rx";
 
-export default function Topbar({ onBellClick , adminInfo }) {
+export default function Topbar({ onBellClick, adminInfo }) {
   const router = useRouter();
-  
-  const handleBellClick = () => {
 
+  const handleBellClick = () => {
     router.push("/admin/notifications"); // Navigate to the notifications page
-  }
+  };
 
   const handleUserImageClick = () => {
     router.push("/admin/profile"); // Navigate to the profile page
@@ -93,43 +92,31 @@ export default function Topbar({ onBellClick , adminInfo }) {
             viewBox="0 0 24 25"
             fill="none"
           >
-            <rect
-              x="0.5"
-              y="0.847168"
-              width="23"
-              height="23"
-              
-            />
+            <rect x="0.5" y="0.847168" width="23" height="23" />
             <path
               fill-rule="evenodd"
               clip-rule="evenodd"
               d="M8.56299 19.3472H4.33771C3.59891 19.3472 3 18.7483 3 18.0095V17.1365C3 16.6311 3.20077 16.1464 3.55814 15.7891C4.48135 14.8659 5 13.6137 5 12.3081V9.34717C5 5.48118 8.13401 2.34717 12 2.34717C15.866 2.34717 19 5.48118 19 9.34717V12.3081C19 13.6137 19.5187 14.8659 20.4419 15.7891C20.7992 16.1464 21 16.6311 21 17.1365V18.0095C21 18.7483 20.4011 19.3472 19.6623 19.3472H15.437C15.437 19.7037 15.4254 20.3835 15.0669 21.0345C14.4734 22.1118 13.3236 22.8472 12 22.8472C10.6763 22.8472 9.52655 22.1118 8.93311 21.0345C8.57454 20.3835 8.56299 19.7037 8.56299 19.3472ZM19.3812 16.8497C19.4573 16.9258 19.5 17.029 19.5 17.1365V17.8472H4.5V17.1365C4.5 17.029 4.54273 16.9258 4.6188 16.8497C5.82331 15.6452 6.5 14.0115 6.5 12.3081V9.34717C6.5 6.3096 8.96244 3.84717 12 3.84717C15.0376 3.84717 17.5 6.3096 17.5 9.34717V12.3081C17.5 14.0115 18.1767 15.6452 19.3812 16.8497ZM13.937 19.3472H10.063C10.063 19.6792 10.0868 20.02 10.247 20.3108C10.3587 20.5137 10.5047 20.6951 10.6771 20.8472C11.0296 21.1584 11.4928 21.3472 12 21.3472C12.5072 21.3472 12.9703 21.1584 13.3229 20.8472C13.4953 20.6951 13.6412 20.5137 13.753 20.3108C13.9132 20.02 13.937 19.6792 13.937 19.3472Z"
               fill="white"
             />
-            <circle
-              cx="18"
-              cy="5.34717"
-              r="3.5"
-              fill="#D34645"
-              
-            />
+            <circle cx="18" cy="5.34717" r="3.5" fill="#D34645" />
           </svg>
         </div>
         <div
           className="relative rounded-full cursor-pointer"
           onClick={handleUserImageClick}
         >
-              {adminInfo?.profile_picture ? (
-                          <Image
-                            src={adminInfo?.profile_picture} // Example placeholder
-                            alt={adminInfo?.name || "Admin"}
-                            width={40}
-                            height={40}
-                            className="object-cover"
-                          />
-                        ) : (
-                          <RxAvatar size={40} />
-                        )}
+          {adminInfo?.profile_picture ? (
+            <Image
+              src={adminInfo?.profile_picture} // Example placeholder
+              alt={adminInfo?.name || "Admin"}
+              width={40}
+              height={40}
+              className="object-fit rounded-full w-10 h-10"
+            />
+          ) : (
+            <RxAvatar size={40} />
+          )}
         </div>
       </div>
     </header>

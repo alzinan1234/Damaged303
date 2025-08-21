@@ -95,7 +95,7 @@ export default function RootLayout({ children }) {
             }`}
           >
             {/* Topbar always visible */}
-            <Topbar onBellClick={handleBellClick} />
+            <Topbar onBellClick={handleBellClick} adminInfo={adminInfo} />
           
 
             {/* Conditionally render NotificationPage or MainContent */}
@@ -107,7 +107,7 @@ export default function RootLayout({ children }) {
               <div className="p-4">{children}</div>
             )}
             {/* Toast container for react-hot-toast */}
-            <Toaster position="top-center" reverseOrder={false} />
+            <Toaster  position="top-center"  reverseOrder={false} />
           </main>
         </div>
       </body>

@@ -13,7 +13,9 @@ export default function ProfilePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("editProfile");
 
-  const [profileImage, setProfileImage] = useState("/image/userImage.png");
+  // New state to store the actual image file
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState();
   const fileInputRef = useRef(null);
 
   const [adminInfo, setAdminInfo] = useState(null);
@@ -27,8 +29,10 @@ export default function ProfilePage() {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      // Store the file and create a URL for preview
+      setProfileImageFile(file);
       const newImageUrl = URL.createObjectURL(file);
-      setProfileImage(newImageUrl);
+      setProfileImageUrl(newImageUrl);
     }
   };
 
@@ -57,19 +61,28 @@ export default function ProfilePage() {
         .then((response) => response.json())
         .then((data) => {
           setAdminInfo(data?.data);
+          // Set initial values from fetched data
+          setFullName(data?.data?.name || "");
+          setContactNo(data?.data?.phone || "");
+          if (data?.data?.profileImageUrl) {
+            setProfileImageUrl(data.data.profileImageUrl);
+          }
         });
     }
   }, []);
 
   const handleProfileUpdate = async (event) => {
     event.preventDefault();
-    // setLoading(true);
     const toastId = toast.loading("Updating profile...");
 
     const formData = new FormData();
     formData.append("name", fullName);
     formData.append("phone", contactNo);
-    // if (profileImageFile) formData.append("profile_picture", profileImageFile);
+    
+    // Append the stored image file ONLY if a new one was selected
+    if (profileImageFile) {
+      formData.append("profile_picture", profileImageFile);
+    }
 
     try {
       const tokenCookie = document.cookie
@@ -85,31 +98,29 @@ export default function ProfilePage() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data", // Important for FormData
           },
         }
       );
       toast.success("Profile updated successfully!", { id: toastId });
-      console.log("test")
-
       setAdminInfo(res.data?.data);
+      // Update the profile image URL with the new one from the response
+      if (res.data?.data?.profileImageUrl) {
+          setProfileImageUrl(res.data.data.profileImageUrl);
+      }
       window.dispatchEvent(
         new CustomEvent("profileUpdated", { detail: res.data?.data })
       );
-
     } catch (err) {
       const errorMessage =
         err.response?.data?.message || err.message || "An error occurred.";
       console.error("Update failed:", err);
       toast.error(`Update failed: ${errorMessage}`, { id: toastId });
-    } finally {
-      // setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-white text-black flex justify-center items-start pt-8 pb-8 rounded-lg">
-      {" "}
-      {/* Changed bg to white, text to black */}
       <div
         className="flex items-center gap-4 cursor-pointer ml-5"
         onClick={handleBackClick}
@@ -118,37 +129,32 @@ export default function ProfilePage() {
           <ArrowLeft
             className="text-black bg-[#E0E0E0] rounded-full p-2"
             size={40}
-          />{" "}
-          {/* Adjusted ArrowLeft background and text color */}
+          />
         </div>
         <h1 className="text-2xl font-bold">Profile</h1>
-      </div>{" "}
+      </div>
       <div className="w-full max-w-6xl mx-auto px-4">
         <div className="p-6">
           <div className="flex justify-center gap-[18px] items-center mb-6">
             <div
-              className="relative rounded-full border-4 border-gray-300 cursor-pointer" // Adjusted border color for visibility on white bg
+              className="relative rounded-full border-4 border-gray-300 cursor-pointer"
               onClick={handleImageClick}
             >
               <div className="w-[100px] h-[100px] rounded-full overflow-hidden flex justify-center items-center">
-                {adminInfo?.profileImageUrl &&
-                adminInfo?.profileImageUrl !== null ? (
+                {profileImageUrl ? (
                   <Image
-                    src={adminInfo?.profileImageUrl}
+                    src={profileImageUrl}
                     alt="User Profile"
                     width={100}
                     height={100}
                     className="rounded-full flex justify-center items-center"
-
-                     style={{ objectFit: "cover" }} 
+                    style={{ objectFit: "cover" }}
                   />
                 ) : (
                   <RxAvatar size={60} className="text-gray-500" />
                 )}
               </div>
               <span className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1 border-2 border-white">
-                {" "}
-                {/* Adjusted border color to white */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4 text-white"
@@ -166,10 +172,8 @@ export default function ProfilePage() {
             <div className="flex flex-col gap-[12px]">
               <h2 className="text-[24px] font-bold mt-3 text-black">
                 {adminInfo?.name}
-              </h2>{" "}
-              {/* Changed text to black */}
-              <p className="text-black font-[400] text-xl">Admin</p>{" "}
-              {/* Changed text to black */}
+              </h2>
+              <p className="text-black font-[400] text-xl">Admin</p>
             </div>
           </div>
           <div className="flex justify-center mb-6">
@@ -177,7 +181,7 @@ export default function ProfilePage() {
               className={`py-2 px-6 text-[16px] font-semibold ${
                 activeTab === "editProfile"
                   ? "border-b-2 border-[#013D3B] text-[#013D3B]"
-                  : "text-gray-600 hover:text-gray-900" // Adjusted text color for non-active tabs
+                  : "text-gray-600 hover:text-gray-900"
               }`}
               onClick={() => setActiveTab("editProfile")}
             >
@@ -187,7 +191,7 @@ export default function ProfilePage() {
               className={`py-2 px-6 text-[16px] font-semibold ${
                 activeTab === "changePassword"
                   ? "border-b-2 border-[#013D3B] text-[#013D3B]"
-                  : "text-gray-600 hover:text-gray-900" // Adjusted text color for non-active tabs
+                  : "text-gray-600 hover:text-gray-900"
               }`}
               onClick={() => setActiveTab("changePassword")}
             >
@@ -200,19 +204,16 @@ export default function ProfilePage() {
             ref={fileInputRef}
             onChange={handleImageChange}
             style={{ display: "none" }}
-            accept="image/png, image/jpeg, image/jpg"
+            accept="image/*"
           />
 
           {activeTab === "editProfile" && (
             <div className="p-6 flex flex-col items-center">
-              <form
-                className="w-full max-w-[982px]"
-                onSubmit={handleProfileUpdate}
-              >
+              <form className="w-full max-w-[982px]" onSubmit={handleProfileUpdate}>
                 <div className="mb-4">
                   <label
                     htmlFor="fullName"
-                    className="block text-black text-sm font-bold mb-2" // Changed text to black
+                    className="block text-black text-sm font-bold mb-2"
                   >
                     Full Name
                   </label>
@@ -220,21 +221,21 @@ export default function ProfilePage() {
                     type="text"
                     id="fullName"
                     onChange={(e) => setFullName(e.target.value)}
-                    className="shadow appearance-none rounded w-full h-[50px] py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border border-[#C3C3C3] bg-gray-100" // Changed text and background of input
-                    defaultValue={adminInfo?.name} // Default value for full name
+                    className="shadow appearance-none rounded w-full h-[50px] py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border border-[#C3C3C3] bg-gray-100"
+                    value={fullName}
                   />
                 </div>
                 <div className="mb-4">
                   <label
                     htmlFor="email"
-                    className="block text-black text-sm font-bold mb-2" // Changed text to black
+                    className="block text-black text-sm font-bold mb-2"
                   >
                     Email
                   </label>
                   <input
                     type="email"
                     id="email"
-                    className="shadow appearance-none rounded w-full h-[50px] py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border border-[#C3C3C3] bg-gray-100 cursor-no-drop" // Changed text and background of input
+                    className="shadow appearance-none rounded w-full h-[50px] py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border border-[#C3C3C3] bg-gray-100 cursor-no-drop"
                     value={adminInfo?.email}
                     readOnly
                   />
@@ -242,7 +243,7 @@ export default function ProfilePage() {
                 <div className="mb-4">
                   <label
                     htmlFor="contactNo"
-                    className="block text-black text-sm font-bold mb-2" // Changed text to black
+                    className="block text-black text-sm font-bold mb-2"
                   >
                     Contact No
                   </label>
@@ -250,14 +251,14 @@ export default function ProfilePage() {
                     type="number"
                     id="contactNo"
                     onChange={(e) => setContactNo(e.target.value)}
-                    className="shadow appearance-none rounded w-full h-[50px] py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border border-[#C3C3C3] bg-gray-100" // Changed text and background of input
-                    defaultValue={adminInfo?.phone} // Default value for contact number
+                    className="shadow appearance-none rounded w-full h-[50px] py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border border-[#C3C3C3] bg-gray-100"
+                    value={contactNo}
                   />
                 </div>
                 <div className="flex items-center justify-center mt-6">
                   <button
                     type="submit"
-                    className="bg-[#013D3B] hover:bg-opacity-80 text-white font-bold w-full py-3 px-4 rounded-[4px] focus:outline-none focus:shadow-outline"
+                    className="bg-[#013D3B] hover:bg-opacity-80 text-white font-bold w-full py-3 px-4 rounded-[4px] focus:outline-none focus:shadow-outline transition duration-150 ease-in-out transform hover:scale-105"
                   >
                     Save Changes
                   </button>
