@@ -155,7 +155,7 @@ export default function LoginPage() {
       <Toaster position="top-center" reverseOrder={false} />
       {/* Left Red Panel - now with image background and blur */}
       {/* This panel's background remains an image and its styling is unchanged */}
-      <div className="hidden lg:flex w-1/2 login_bg border  items-center justify-center ">
+      <div className="hidden lg:flex w-1/2 login_bg   items-center justify-center ">
         {/* <div>
           <Image
             src={leftSideImage}
