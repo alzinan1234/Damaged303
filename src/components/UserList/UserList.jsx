@@ -36,6 +36,8 @@ export default function UserList() {
   const [filterYear, setFilterYear] = useState("All");
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
+  const [nextPage, setNextPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
 
   // State for the confirmation modal
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -76,8 +78,10 @@ export default function UserList() {
       if (userType !== "All") {
         formattedUsers = formattedUsers.filter(u => u.userType === userType);
       }
-      setUsers(formattedUsers);
-      setTotal(formattedUsers.length);
+  setUsers(formattedUsers);
+  setTotal(response.data.count);
+  setNextPage(response.data.next);
+  setPrevPage(response.data.previous);
     } catch (error) {
       console.error("Failed to fetch users:", error);
       toast.error("Could not fetch user data.");
@@ -121,6 +125,12 @@ export default function UserList() {
 
   const handlePage = (p) => {
     if (p >= 1 && p <= totalPages) setPage(p);
+  };
+  const handleNext = () => {
+    if (nextPage) setPage(page + 1);
+  };
+  const handlePrev = () => {
+    if (prevPage) setPage(page - 1);
   };
 
   const handleView = (user) => {
@@ -266,10 +276,10 @@ export default function UserList() {
                   </td>
                 </tr>
               ) : (
-                users.map((user) => (
+                users.map((user, idx) => (
                   <tr key={user.id}>
                     <td className="px-3 py-4 sm:px-6 whitespace-nowrap text-sm font-medium text-gray-700">
-                      #{user.id}
+                      #{(page - 1) * pageSize + idx + 1}
                     </td>
                     <td className="px-3 py-4 sm:px-6 whitespace-nowrap">
                       <div className="flex items-center">
@@ -324,27 +334,42 @@ export default function UserList() {
       </div>
       
       {/* -- Pagination Controls -- */}
-       { total > 0 && totalPages > 1 && (
-          <div className="flex items-center justify-end p-4 sm:p-6">
-             <div className="flex items-center space-x-2">
-             <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-200 disabled:opacity-50" onClick={() => handlePage(page - 1)} disabled={page === 1}>
-                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-             </button>
-             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                 <button
-                 key={p}
-                 className={`px-3 py-1 rounded-lg text-sm font-semibold ${p === page ? "bg-[#013D3B] text-white" : "bg-gray-200 text-black hover:bg-gray-300"}`}
-                 onClick={() => handlePage(p)}
-                 >
-                 {p}
-                 </button>
-             ))}
-             <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-200 disabled:opacity-50" onClick={() => handlePage(page + 1)} disabled={page === totalPages}>
-                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-             </button>
-             </div>
-           </div>
-        )}
+      { total > 0 && (
+        <div className="flex flex-col sm:flex-row justify-end items-center mt-6 text-black text-sm">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className="px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-300 disabled:opacity-50 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Previous page"
+            >
+              &lt;
+            </button>
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i + 1)}
+                className={`px-3 py-1.5 rounded-lg ${
+                  page === i + 1
+                    ? "bg-[#013D3B] text-white font-bold"
+                    : "bg-gray-100 border border-gray-300 hover:bg-gray-200"
+                } transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                aria-label={`Page ${i + 1}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-300 disabled:opacity-50 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Next page"
+            >
+              &gt;
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* -- Confirmation Modal -- */}
       <AnimatePresence>
