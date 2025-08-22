@@ -2,101 +2,163 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline'; // Only ArrowLeftIcon is needed
 import dynamic from 'next/dynamic';
+import toast from 'react-hot-toast';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
-// Updated contentData - removed 'faqs'
-const contentData = {
+// Use a dynamic import for the JoditEditor to prevent SSR issues.
+const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
+
+// Centralized configuration for tabs. This makes the component more scalable and easier to manage.
+// Each tab has a title for the UI and an apiSlug for backend communication.
+const tabConfig = {
   'privacy-security': {
     title: 'Privacy Policy',
-    date: 'Dec 4, 2019 21:42',
-    text: `<h1>Privacy Policy</h1><p>1. Information We Collect</p>`,
+    apiSlug: 'privacy_policy',
   },
   'terms-conditions': {
     title: 'Terms & Conditions',
-    date: 'Dec 4, 2019 21:42',
-    text: `<h1>Terms & Conditions</h1><p>1. Acceptance of Terms</p><p>By accessing or using our Service, you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.</p><p>2. Intellectual Property</p><p>The Service and its original content, features and functionality are and will remain the exclusive property of [Your Company Name] and its licensors.</p><p>3. Links To Other Web Sites</p><p>Our Service may contain links to third-party web sites or services that are not owned or controlled by [Your Company Name].</p><p>[Your Company Name] has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that [Your Company Name] shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such web sites or services.</p><p>4. Termination</p><p>We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p><p>All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity and limitations of liability.</p><p>5. Disclaimer</p><p>Your use of the Service is at your sole risk. The Service is provided on an "AS IS" and "AS AVAILABLE" basis. The Service is provided without warranties of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement or course of performance.</p><p>6. Governing Law</p><p>These Terms shall be governed and construed in accordance with the laws of [Your Country/State], without regard to its conflict of law provisions.</p><p>Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect. These Terms constitute the entire agreement between us regarding our Service, and supersede and replace any prior agreements we might have between us regarding the Service.</p><p>7. Changes</p><p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will try to provide at least 30 days notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.</p><p>By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, please stop using the Service.</p>`,
+    apiSlug: 'terms_conditions',
   },
   'about-us': {
     title: 'About Us',
-    date: 'Dec 4, 2019 21:42',
-    text: `<h1>Welcome to [Your Company Name]!</h1><p>We are dedicated to providing you with the best [type of service/product] experience. Our mission is to [brief mission statement].</p><p>Founded in [Year], [Your Company Name] has come a long way from its beginnings in [starting location]. When [founder's name] first started out, their passion for [passion that drove them to start the business] drove them to start their own business, and gave them the impetus to turn hard work and inspiration into to a booming online store. We now serve customers all over [region/world], and are thrilled to be a part of the [industry type] industry.</p><p>We hope you enjoy our products/services as much as we enjoy offering them to you. If you have any questions or comments, please don't hesitate to contact us.</p><p>Sincerely,</p><p>The [Your Company Name] Team</p>`,
+    apiSlug: 'about_us',
   },
 };
 
-const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
+// A helper object to map API setting types back to our tab IDs for easy state updates.
+const apiSlugToTabId = Object.entries(tabConfig).reduce((acc, [tabId, config]) => {
+  acc[config.apiSlug] = tabId;
+  return acc;
+}, {});
+
+// Dynamically generate the initial state for tab contents from the configuration.
+const initialTabContents = Object.keys(tabConfig).reduce((acc, tabId) => {
+    acc[tabId] = { ...tabConfig[tabId], text: '', date: '' };
+    return acc;
+}, {});
+
 
 const SettingsPage = ({ onBackClick }) => {
   const editor = useRef(null);
   const [activeTab, setActiveTab] = useState('privacy-security');
   const [editableContent, setEditableContent] = useState('');
-  // Removed faqs and selectedFaq states
-  // const [faqs, setFaqs] = useState(contentData.faqs.questions || []);
-  // const [selectedFaq, setSelectedFaq] = useState(faqs.length > 0 ? faqs[0] : null);
-  const [tabContents, setTabContents] = useState(contentData);
+  const [tabContents, setTabContents] = useState(initialTabContents);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Effect to fetch all settings data when the component mounts.
   useEffect(() => {
-    // Simplified useEffect as 'faqs' tab is removed
+    async function fetchSettings() {
+      setIsLoading(true);
+      try {
+        const res = await fetch('https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/settings/');
+        if (!res.ok) throw new Error('Failed to fetch settings from the server.');
+        
+        const data = await res.json();
+        
+        if (data.results && Array.isArray(data.results)) {
+          const updatedTabs = { ...initialTabContents };
+          
+          // Populate the state with data fetched from the API.
+          data.results.forEach(setting => {
+            const tabId = apiSlugToTabId[setting.setting_type];
+            if (tabId) {
+              updatedTabs[tabId].text = setting.content;
+              updatedTabs[tabId].date = new Date(setting.last_updated).toLocaleString();
+            }
+          });
+          setTabContents(updatedTabs);
+        }
+      } catch (err) {
+        toast.error(err.message || 'Could not load settings.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchSettings();
+  }, []);
+
+  // Effect to update the editor's content whenever the active tab or its content changes.
+  useEffect(() => {
     setEditableContent(tabContents[activeTab].text);
   }, [activeTab, tabContents]);
 
+  // Memoized configuration for the Jodit editor to prevent re-creation on every render.
   const joditConfig = useMemo(() => ({
     readonly: false,
     spellcheck: false,
+    placeholder: 'Start typing...',
     buttons: 'undo,redo,|,bold,italic,underline,strikethrough,|,ul,ol,|,link,cut,copy,paste,|,align,|,source',
-    theme: 'light', // Changed theme to light for white background
+    theme: 'light',
     toolbarButtonSize: 'large',
+    height: 400, // Set a default height for the editor
   }), []);
 
-  const handleSaveAndChange = () => {
-    // Simplified save logic as 'faqs' tab is removed
-    setTabContents(prev => ({
-      ...prev,
-      [activeTab]: { ...prev[activeTab], text: editableContent },
-    }));
-    showConfirmation(`Content for "${tabContents[activeTab].title}" saved!`);
-  };
+  // Generic handler to save changes for the currently active tab.
+  const handleSaveAndChange = async () => {
+    const currentTabConfig = tabConfig[activeTab];
+    if (!currentTabConfig) {
+      toast.error('Invalid tab configuration.');
+      return;
+    }
 
-  const showConfirmation = (message) => {
-    // const confirmDialog = document.createElement('div');
-    // confirmDialog.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
-    // confirmDialog.innerHTML = `
-    //   <div class="bg-white p-6 rounded-lg shadow-lg text-black"> {/* Changed bg to white, text to black */}
-    //     <p class="mb-4">${message}</p>
-    //     <button id="confirmOkBtn" class="bg-cyan-400 hover:bg-cyan-300 text-white py-2 px-4 rounded-[4px] border-b-4 border-cyan-500">OK</button> {/* Adjusted border color for light theme */}
-    //   </div>
-    // `;
-    // document.body.appendChild(confirmDialog);
-    // document.getElementById('confirmOkBtn').onclick = () => {
-    //   document.body.removeChild(confirmDialog);
-    // };
-  };
+    const { apiSlug, title } = currentTabConfig;
+    const endpoint = `https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/settings/${apiSlug}/`;
+    const toastId = toast.loading(`Updating ${title}...`);
 
-  // Removed all FAQ-related handler functions:
-  // handleQuestionChange, handleFaqSelection, handleAddFaq, handleDeleteFaq
+    try {
+      const res = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: editableContent }),
+      });
+
+      if (!res.ok) {
+        // Try to parse error details from the response body for a more specific message.
+        const errorData = await res.json().catch(() => ({ detail: `Failed to update ${title}` }));
+        throw new Error(errorData.detail || `HTTP error! Status: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Update the state with the new content and last updated date from the server response.
+      setTabContents(prev => ({
+        ...prev,
+        [activeTab]: {
+          ...prev[activeTab],
+          text: editableContent,
+          date: new Date(data.last_updated).toLocaleString(),
+        },
+      }));
+
+      toast.success(`${title} updated successfully!`, { id: toastId });
+    } catch (err) {
+      toast.error(err.message || `An unexpected error occurred while updating ${title}.`, { id: toastId });
+    }
+  };
 
   return (
-    <div className="bg-white rounded-2xl min-h-screen text-black p-6 sm:p-6 lg:p-8 font-inter"> {/* Changed bg to white, text to black */}
+    <div className="bg-white rounded-2xl min-h-screen text-black p-4 sm:p-6 lg:p-8 font-inter">
       <div className="flex items-center mb-6">
         {onBackClick && (
-          <button onClick={onBackClick} className="text-gray-600 hover:text-black mr-4" aria-label="Go back"> {/* Adjusted text colors */}
+          <button onClick={onBackClick} className="text-gray-600 hover:text-black mr-4" aria-label="Go back">
             <ArrowLeftIcon className="h-6 w-6" />
           </button>
         )}
         <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
       </div>
 
-      <div className="border-b border-gray-300"> {/* Adjusted border color */}
-        <div className="md:w-full flex justify-start bg-gray-100 rounded-t-lg overflow-x-auto scrollbar-hide"> {/* Adjusted bg color */}
-          {['privacy-security', 'terms-conditions', 'about-us'].map((tabId) => ( // Removed 'faqs' tab
+      <div className="border-b border-gray-300">
+        <div className="flex justify-start bg-gray-100 rounded-t-lg overflow-x-auto scrollbar-hide">
+          {Object.keys(tabConfig).map((tabId) => (
             <button
               key={tabId}
-              className={`flex-shrink-0 px-4 py-4 text-lg font-medium relative ${
-                activeTab === tabId ? 'text-[#013D3B]' : 'text-gray-600 hover:text-black' // Adjusted text colors
+              className={`flex-shrink-0 px-4 py-4 text-base sm:text-lg font-medium relative whitespace-nowrap ${
+                activeTab === tabId ? 'text-[#013D3B]' : 'text-gray-600 hover:text-black'
               }`}
               onClick={() => setActiveTab(tabId)}
             >
-              {tabContents[tabId].title}
+              {tabConfig[tabId].title}
               {activeTab === tabId && (
                 <span className="absolute bottom-0 left-0 right-0 h-[2px] -mb-[1px] bg-[#013D3B]"></span>
               )}
@@ -105,31 +167,34 @@ const SettingsPage = ({ onBackClick }) => {
         </div>
       </div>
 
-      <div className="bg-gray-50 p-4 rounded-b-lg -mt-px"> {/* Adjusted bg color */}
-        {/* Only show content for non-FAQ tabs */}
-        <>
-          <h2 className="text-xl font-semibold mb-1">{tabContents[activeTab].title}</h2>
-          <p className="text-sm text-gray-600 mb-4">{tabContents[activeTab].date}</p> {/* Adjusted text color */}
-          <div className="rounded-md mb-6 py-2">
-            <JoditEditor
-              className="jodit-custom-theme"
-              ref={editor}
-              value={editableContent}
-              config={joditConfig}
-              onChange={(newContent) => setEditableContent(newContent)}
-            />
-          </div>
-        </>
-
-        <div className="col-span-full mt-4">
-          <button
-            type="button"
-            onClick={handleSaveAndChange}
-            className="w-full mx-auto flex justify-center items-center rounded-[4px] bg-[#013D3B]  text-white py-2 font-medium" // Adjusted hover color
-          >
-            Save & Change
-          </button>
-        </div>
+      <div className="bg-gray-50 p-4 rounded-b-lg -mt-px">
+        {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+                <p className="text-gray-500">Loading content...</p>
+            </div>
+        ) : (
+            <>
+              <h2 className="text-xl font-semibold mb-1">{tabContents[activeTab].title}</h2>
+              <p className="text-sm text-gray-600 mb-4">Last Updated: {tabContents[activeTab].date || 'N/A'}</p>
+              <div className="rounded-md mb-6 py-2">
+                <JoditEditor
+                  ref={editor}
+                  value={editableContent}
+                  config={joditConfig}
+                  onChange={(newContent) => setEditableContent(newContent)}
+                />
+              </div>
+              <div className="col-span-full mt-4">
+                <button
+                  type="button"
+                  onClick={handleSaveAndChange}
+                  className="w-full mx-auto flex justify-center items-center rounded-md bg-[#013D3B] text-white py-3 font-medium hover:bg-[#012a29] transition-colors duration-200"
+                >
+                  Save & Change
+                </button>
+              </div>
+            </>
+        )}
       </div>
     </div>
   );

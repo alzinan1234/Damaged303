@@ -22,38 +22,41 @@ export default function ChangePasswordForm() {
 
     // IMPORTANT: You need to get the user's auth token,
     // likely from localStorage or cookies after they log in.
-    const authToken = localStorage.getItem("authToken"); 
+    const authToken = localStorage.getItem("authToken");
 
     if (!authToken) {
-        setMessage("You are not authorized. Please log in again.");
-        setMessageType("error");
-        return;
+      setMessage("You are not authorized. Please log in again.");
+      setMessageType("error");
+      return;
     }
 
     try {
-      const response = await fetch("https://maintains-usb-bell-with.trycloudflare.com/api/auth/password/change/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Add the Authorization header
-          "Authorization": `Bearer ${authToken}` 
-        },
-        // Match the keys from your Postman request body
-        body: JSON.stringify({
-          "old_password": currentPassword,
-          "new_password": newPassword,
-          "new_password2": confirmedPassword
-        })
-      });
+      const response = await fetch(
+        "https://maintains-usb-bell-with.trycloudflare.com/api/auth/password/change/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Add the Authorization header
+            Authorization: `Bearer ${authToken}`,
+          },
+          // Match the keys from your Postman request body
+          body: JSON.stringify({
+            old_password: currentPassword,
+            new_password: newPassword,
+            new_password2: confirmedPassword,
+          }),
+        }
+      );
 
       const result = await response.json();
-      
+
       if (!response.ok) {
         // Handle potential validation errors from the API
         let errorMessage = "Failed to change password.";
-        if (result && typeof result === 'object') {
-            // Combine multiple error messages if the API sends them
-            errorMessage = Object.values(result).flat().join(' ');
+        if (result && typeof result === "object") {
+          // Combine multiple error messages if the API sends them
+          errorMessage = Object.values(result).flat().join(" ");
         }
         setMessage(errorMessage);
         setMessageType("error");
@@ -136,7 +139,7 @@ export default function ChangePasswordForm() {
       <div className="flex items-center justify-center mt-6 md:w-[982px]">
         <button
           type="submit"
-          className="bg-[#013D3B] hover:bg-opacity-80 text-white font-bold w-full py-3 px-4 rounded-[4px] focus:outline-none focus:shadow-outline"
+          className="bg-[#013D3B] hover:bg-opacity-80 cursor-pointer text-white font-bold w-full py-3 px-4 rounded-[4px] focus:outline-none focus:shadow-outline transition duration-150 ease-in-out transform hover:scale-105"
         >
           Save Changes
         </button>

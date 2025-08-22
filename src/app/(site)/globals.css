@@ -64,10 +64,13 @@ body {
 }
 
 .login_bg{
-  background-image: url('../../../public/login-image.png');
+  background-image: url('../../../public/login-image-1.png');
  
   /* background-position: center; */
   background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  
 
 
 

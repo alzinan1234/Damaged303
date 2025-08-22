@@ -258,7 +258,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-center mt-6">
                   <button
                     type="submit"
-                    className="bg-[#013D3B] hover:bg-opacity-80 text-white font-bold w-full py-3 px-4 rounded-[4px] focus:outline-none focus:shadow-outline transition duration-150 ease-in-out transform hover:scale-105"
+                    className="bg-[#013D3B] cursor-pointer hover:bg-opacity-80 text-white font-bold w-full py-3 px-4 rounded-[4px] focus:outline-none focus:shadow-outline transition duration-150 ease-in-out transform hover:scale-105"
                   >
                     Save Changes
                   </button>
