@@ -282,7 +282,7 @@ const NotificationPage = ({ onBackClick }) => {
     const statusClasses = notification.is_read ? 'text-gray-500' : 'text-black';
 
     return (
-      <div className='p-5 border-b border-gray-200 last:border-b-0'>
+      <div className='p-5 border-b border-gray-200 last:border-b-0 '>
         <div className={`flex items-center justify-between ${statusClasses} transition-colors duration-200`}>
           <div className="flex-grow">
             <p className="text-xs text-gray-500 font-semibold">{notification.recipient}</p>
@@ -295,7 +295,7 @@ const NotificationPage = ({ onBackClick }) => {
           <div className="flex items-center justify-center space-x-2 ml-4">
             <button
               onClick={() => handleDeleteNotification(notification.id)}
-              className="text-red-600 hover:text-red-400 p-1 rounded-full transition-colors duration-200"
+              className="text-red-600 hover:text-red-400 p-1 rounded-full transition-colors cursor-pointer duration-200"
               aria-label="Delete notification"
             >
               <TrashIcon className="h-5 w-5" />
@@ -317,7 +317,7 @@ const NotificationPage = ({ onBackClick }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl text-black p-6 sm:p-6 lg:p-8">
+    <div className="bg-white rounded text-black p-6 sm:p-6 lg:p-8">
       <Toaster position="top-center" reverseOrder={false} />
 
       {/* Header */}
@@ -337,7 +337,7 @@ const NotificationPage = ({ onBackClick }) => {
       </div>
 
       {/* New Push Notification Section */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200 shadow-sm">
+      <div className="bg-gray-50 rounded p-4 mb-6  shadow-xl">
         <h2 className="text-lg font-semibold text-black mb-3">Send New Notification</h2>
         <div className="flex flex-col md:flex-row gap-4">
           <input
@@ -387,7 +387,7 @@ const NotificationPage = ({ onBackClick }) => {
         
         <button
           onClick={handleSendPushNotification}
-          className="mt-4 w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-[#013D3B] text-white font-semibold rounded-md hover:bg-[#013D3B]/90 transition-colors duration-200"
+          className="mt-4 w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-[#ff0004] text-white font-semibold rounded-md hover:bg-[#013D3B] cursor-pointer transition-colors duration-200"
         >
           <PaperAirplaneIcon className="h-5 w-5 rotate-90" />
           Send Notification
