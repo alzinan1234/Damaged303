@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
@@ -21,8 +21,9 @@ function AvatarImage({ alt }) {
 }
 
 // Main UserList Component
-export default function UserList() {
+function UserList() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // State for API data and loading
   const [users, setUsers] = useState([]);
@@ -34,7 +35,9 @@ export default function UserList() {
   const [userType, setUserType] = useState("All");
   const [filterMonth, setFilterMonth] = useState("All");
   const [filterYear, setFilterYear] = useState("All");
-  const [page, setPage] = useState(1);
+  // Get page from URL query param for persistence
+  const initialPage = Number(searchParams.get("page")) || 1;
+  const [page, setPage] = useState(initialPage);
   const [pageSize] = useState(10);
   const [nextPage, setNextPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
@@ -124,13 +127,22 @@ export default function UserList() {
   };
 
   const handlePage = (p) => {
-    if (p >= 1 && p <= totalPages) setPage(p);
+    if (p >= 1 && p <= totalPages) {
+      setPage(p);
+      router.replace(`?page=${p}`);
+    }
   };
   const handleNext = () => {
-    if (nextPage) setPage(page + 1);
+    if (nextPage) {
+      setPage(page + 1);
+      router.replace(`?page=${page + 1}`);
+    }
   };
   const handlePrev = () => {
-    if (prevPage) setPage(page - 1);
+    if (prevPage) {
+      setPage(page - 1);
+      router.replace(`?page=${page - 1}`);
+    }
   };
 
   const handleView = (user) => {
@@ -338,7 +350,7 @@ export default function UserList() {
         <div className="flex flex-col sm:flex-row justify-end items-center mt-6 text-black text-sm">
           <div className="flex gap-2">
             <button
-              onClick={() => setPage(page - 1)}
+              onClick={handlePrev}
               disabled={page === 1}
               className="px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-300 disabled:opacity-50 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Previous page"
@@ -348,7 +360,7 @@ export default function UserList() {
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
-                onClick={() => setPage(i + 1)}
+                onClick={() => handlePage(i + 1)}
                 className={`px-3 py-1.5 rounded-lg ${
                   page === i + 1
                     ? "bg-[#013D3B] text-white font-bold"
@@ -360,7 +372,7 @@ export default function UserList() {
               </button>
             ))}
             <button
-              onClick={() => setPage(page + 1)}
+              onClick={handleNext}
               disabled={page === totalPages}
               className="px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-300 disabled:opacity-50 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Next page"
@@ -404,3 +416,4 @@ export default function UserList() {
     </>
   );
 }
+export default UserList;
