@@ -1,32 +1,105 @@
 // components/DashboardCards.js
-import React from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const MetricCard = () => {
+  const [dashboardData, setDashboardData] = useState({
+    totalEarnings: 0,
+    totalUsers: 0,
+    totalTokens: 0,
+    totalProducts: 0, // Will be 0 until API adds this field
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/overview/");
+        const apiData = response.data.data;
+
+        setDashboardData({
+          totalEarnings: apiData.total_earnings || 0,
+          totalUsers: apiData.total_users || 0,
+          totalTokens: apiData.total_tokens_used || 0,
+          totalProducts: apiData.total_affiliate_products || 0, // Future API field
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        // Fallback to demo data if API fails
+        setDashboardData({
+          totalEarnings: 682.5,
+          totalUsers: 68,
+          totalTokens: 1240,
+          totalProducts: 25,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+    
+    // Auto-refresh data every 30 seconds
+    const interval = setInterval(fetchDashboardData, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Format numbers with commas
+  const formatNumber = (num) => {
+    return num.toLocaleString();
+  };
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col md:flex-row gap-4 p-4">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="flex-1 bg-white rounded p-6 shadow-xl animate-pulse">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="h-4 bg-gray-300 rounded w-20 mb-2"></div>
+                <div className="h-8 bg-gray-300 rounded w-16"></div>
+              </div>
+              <div className="bg-gray-300 rounded-full w-12 h-12"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col md:flex-row gap-4 p-4">
       {/* Total Earning Card */}
-      <div className="flex-1 bg-white rounded p-6 flex items-center justify-between shadow-xl ">
+      <div className="flex-1 bg-white rounded p-6 flex items-center justify-between shadow-xl hover:shadow-2xl transition-shadow duration-300">
         <div>
           <p className="text-black text-sm font-normal">Total Earning</p>
-          <h2 className="text-black text-3xl font-bold mt-1">$682.5</h2>
+          <h2 className="text-black text-3xl font-bold mt-1">
+            {formatCurrency(dashboardData.totalEarnings)}
+          </h2>
         </div>
         <div className="bg-[#013D3B] text-white rounded-full p-3 flex items-center justify-center w-12 h-12">
           {/* Chart Icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="#FFFFFF">
-            <path d="M15 60h-5v4h44v-4H15zM22 47h20v4H22zM16 53v5h32v-5H16z" />
-            <path d="M63 47H44v4h5a1 1 0 0 1 1 1v6h5a1 1 0 0 1 1 1v5h7a1 1 0 0 0 1-1V48a1 1 0 0 0-1-1zM14 52a1 1 0 0 1 1-1h5v-4H1a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h7v-5a1 1 0 0 1 1-1h5zM46 43v2h14v-2a1 1 0 0 0-1-1H47a1 1 0 0 0-1 1zM4 43v2h14v-2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1zM60 27H46v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM18 27H4v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM49 32h8v8h-8zM7 32h8v8H7zM34 38a1 1 0 0 0-1-1v2a1 1 0 0 0 1-1zM30 34a1 1 0 0 0 1 1v-2a1 1 0 0 0-1 1z" />
-            <path d="M41 36a9 9 0 1 0-9 9 9.01 9.01 0 0 0 9-9zm-10 5h-1a1 1 0 0 1 0-2h1v-2a3 3 0 0 1 0-6 1 1 0 0 1 2 0h1a1 1 0 0 1 0 2h-1v2a3 3 0 0 1 0 6 1 1 0 0 1-2 0z" />
-            <circle cx="32" cy="11" r="2" />
-            <path d="M32.51.14a.984.984 0 0 0-1.02 0L1.72 18h60.56zM32 15a4 4 0 1 1 4-4 4 4 0 0 1-4 4zM2 25h60a1 1 0 0 0 1-1v-4H1v4a1 1 0 0 0 1 1z" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="white">
+            <path d="M7 18h2V6H7v12zm4-12h2v16h-2V6zm4 8h2v8h-2v-8z"/>
           </svg>
         </div>
       </div>
 
       {/* Total User Card */}
-      <div className="flex-1 bg-white rounded p-6 flex items-center justify-between shadow-xl">
+      <div className="flex-1 bg-white rounded p-6 flex items-center justify-between shadow-xl hover:shadow-2xl transition-shadow duration-300">
         <div>
-          <p className="text-black text-sm">Total User</p>
-          <h2 className="text-black text-3xl font-bold mt-1">68</h2>
+          <p className="text-black text-sm">Total Users</p>
+          <h2 className="text-black text-3xl font-bold mt-1">
+            {formatNumber(dashboardData.totalUsers)}
+          </h2>
         </div>
         <div className="bg-[#013D3B] rounded-full p-3 flex items-center justify-center w-12 h-12">
           {/* User Icon */}
@@ -40,16 +113,37 @@ const MetricCard = () => {
       </div>
 
       {/* Total Token Card */}
-      <div className="flex-1 bg-white rounded p-6 flex items-center justify-between shadow-xl">
+      <div className="flex-1 bg-white rounded p-6 flex items-center justify-between shadow-xl hover:shadow-2xl transition-shadow duration-300">
         <div>
-          <p className="text-black text-sm">Total Token</p>
-          <h2 className="text-black text-3xl font-bold mt-1">1,240</h2>
+          <p className="text-black text-sm">Total Tokens</p>
+          <h2 className="text-black text-3xl font-bold mt-1">
+            {formatNumber(dashboardData.totalTokens)}
+          </h2>
         </div>
         <div className="bg-[#013D3B] rounded-full p-3 flex items-center justify-center w-12 h-12">
           {/* Token Icon */}
           <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="white">
             <path d="M12,2C6.486,2,2,6.486,2,12s4.486,10,10,10s10-4.486,10-10S17.514,2,12,2z M12,20c-4.411,0-8-3.589-8-8s3.589-8,8-8 s8,3.589,8,8S16.411,20,12,20z"></path>
             <path d="M13.842 14.418H10.158l-1.334 2.667H6l6-12l6 12h-2.824L13.842 14.418zM12 7.168L10.511 10.13h2.978L12 7.168z"></path>
+          </svg>
+        </div>
+      </div>
+
+      {/* Total Affiliate Products Card */}
+      <div className="flex-1 bg-white rounded p-6 flex items-center justify-between shadow-xl hover:shadow-2xl transition-shadow duration-300">
+        <div>
+          <p className="text-black text-sm">Total Products</p>
+          <h2 className="text-black text-3xl font-bold mt-1">
+            {formatNumber(dashboardData.totalProducts)}
+          </h2>
+        </div>
+        <div className="bg-[#013D3B] rounded-full p-3 flex items-center justify-center w-12 h-12">
+          {/* Affiliate Products Icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="white">
+            <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
+            <path d="M9 8V17H11V8H9ZM13 8V17H15V8H13Z"/>
+            <circle cx="12" cy="12" r="2" fill="#013D3B"/>
+            <path d="M16.5 7.5L18.5 5.5M18.5 5.5L20.5 7.5M18.5 5.5V9.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
       </div>

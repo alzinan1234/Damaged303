@@ -21,6 +21,11 @@ export default function ProfilePage() {
   const [adminInfo, setAdminInfo] = useState(null);
   const [fullName, setFullName] = useState("");
   const [contactNo, setContactNo] = useState("");
+  const handleContactChange = (e) => {
+  // Remove all non-numeric characters
+  const numericValue = e.target.value.replace(/\D/g, '');
+  setContactNo(numericValue);
+};
 
   const handleBackClick = () => {
     router.back();
@@ -40,36 +45,34 @@ export default function ProfilePage() {
     fileInputRef.current.click();
   };
 
-  useEffect(() => {
-    // get token from cookie
-    const token = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("adminToken"));
-    if (token) {
-      const tokenValue = token.split("=")[1];
-      // Set token in headers for all fetch requests
-      fetch(
-        `https://maintains-usb-bell-with.trycloudflare.com/api/auth/profile/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${tokenValue}`,
-          },
+useEffect(() => {
+  const token = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("adminToken"));
+  if (token) {
+    const tokenValue = token.split("=")[1];
+    fetch(
+      `https://maintains-usb-bell-with.trycloudflare.com/api/auth/profile/`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenValue}`,
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setAdminInfo(data?.data);
+        setFullName(data?.data?.name || "");
+        setContactNo(data?.data?.phone || "");
+        // Fix: Use the correct field name from API response
+        if (data?.data?.profile_picture) {
+          setProfileImageUrl(data.data.profile_picture);
         }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          setAdminInfo(data?.data);
-          // Set initial values from fetched data
-          setFullName(data?.data?.name || "");
-          setContactNo(data?.data?.phone || "");
-          if (data?.data?.profileImageUrl) {
-            setProfileImageUrl(data.data.profileImageUrl);
-          }
-        });
-    }
-  }, []);
+      });
+  }
+}, []);
 
   const handleProfileUpdate = async (event) => {
     event.preventDefault();
@@ -105,8 +108,8 @@ export default function ProfilePage() {
       toast.success("Profile updated successfully!", { id: toastId });
       setAdminInfo(res.data?.data);
       // Update the profile image URL with the new one from the response
-      if (res.data?.data?.profileImageUrl) {
-          setProfileImageUrl(res.data.data.profileImageUrl);
+      if (res.data?.data?.profile_picture) {
+          setProfileImageUrl(res.data.data.profile_picture);
       }
       window.dispatchEvent(
         new CustomEvent("profileUpdated", { detail: res.data?.data })
@@ -247,10 +250,11 @@ export default function ProfilePage() {
                   >
                     Contact No
                   </label>
+                  
                   <input
-                    type="number"
+                    type="tel"
                     id="contactNo"
-                    onChange={(e) => setContactNo(e.target.value)}
+                    onChange={handleContactChange}
                     className="shadow appearance-none rounded w-full h-[50px] py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border border-[#C3C3C3] bg-gray-100"
                     value={contactNo}
                   />

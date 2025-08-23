@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -10,79 +11,118 @@ import {
 } from "recharts";
 
 const EarningOverviewChart = () => {
-  const [selectedYear, setSelectedYear] = useState(2025);
-
+  // State for chart data, loading state, and dropdown functionality.
+  const [currentEarningData, setCurrentEarningData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const [currentEarningData, setCurrentEarningData] = useState([]);
+  // Dynamic years - current year + last 4 years
+  const getCurrentYear = () => new Date().getFullYear();
+  const generateYears = () => {
+    const currentYear = getCurrentYear();
+    const years = [];
+    for (let i = 4; i >= 0; i--) {
+      years.push(currentYear - i);
+    }
+    return years;
+  };
 
-  const years = [2023, 2024, 2025, 2026];
-
-  const generateEarningData = useCallback((year) => {
-    const baseData = [
-      { month: "Jan", height: 58, value: 5800, active: false },
-      { month: "Feb", height: 142, value: 14200, active: false },
-      { month: "Mar", height: 98, value: 9800, active: false },
-      { month: "Apr", height: 112, value: 11200, active: false },
-      { month: "May", height: 90, value: 9000, active: false },
-      { month: "Jun", height: 161, value: 16100, active: true },
-      { month: "Jul", height: 78, value: 7800, active: false },
-      { month: "Aug", height: 142, value: 14200, active: false },
-      { month: "Sep", height: 39, value: 3900, active: false },
-      { month: "Oct", height: 112, value: 11200, active: false },
-      { month: "Nov", height: 63, value: 6300, active: false },
-      { month: "Dec", height: 98, value: 9800, active: false },
-    ];
-
-    return baseData.map((item) => {
-      let newHeight = item.height;
-      let newValue = item.value;
-      if (year === 2024) {
-        newHeight = Math.max(20, item.height - 20);
-        newValue = Math.max(2000, item.value - 2000);
-      } else if (year === 2023) {
-        newHeight = Math.max(20, item.height - 40);
-        newValue = Math.max(2000, item.value - 4000);
-      } else if (year === 2026) {
-        newHeight = Math.min(180, item.height + 10);
-        newValue = Math.min(18000, item.value + 1000);
-      }
-      return {
-        ...item,
-        height: newHeight,
-        value: newValue,
-        active: item.month === "Jun",
-      };
-    });
-  }, []);
+  const [years] = useState(generateYears());
+  const [selectedYear, setSelectedYear] = useState(getCurrentYear());
 
   useEffect(() => {
-    setCurrentEarningData(generateEarningData(selectedYear));
-  }, [selectedYear, generateEarningData]);
+    // We use a self-invoking async function to fetch the data from the new API.
+    async function fetchEarningData() {
+      setLoading(true);
+      try {
+        const response = await axios.get("https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/overview/");
+        const apiData = response.data.data;
+        const monthlyDataFromApi = apiData.monthly_data;
+
+        // Map the API data to the format required by Recharts
+        const mappedData = monthlyDataFromApi.map((item) => ({
+          month: item.month,
+          // We use the earnings value for both the bar height and the tooltip value.
+          height: item.earnings,
+          value: item.earnings,
+          // Set active month based on non-zero earnings
+          active: item.earnings > 0,
+        }));
+
+        // The API provides data for current year. To simulate data for other years,
+        // we'll scale the fetched data based on the selected year
+        let finalData = mappedData;
+        const currentYear = getCurrentYear();
+        
+        if (selectedYear !== currentYear) {
+          const yearDifference = currentYear - selectedYear;
+          let scaleFactor = 1;
+          
+          if (yearDifference > 0) {
+            // Past years - scale down progressively
+            scaleFactor = Math.max(0.3, 1 - (yearDifference * 0.2));
+          } else {
+            // Future years - scale up
+            scaleFactor = 1 + (Math.abs(yearDifference) * 0.1);
+          }
+          
+          finalData = mappedData.map(item => ({
+            ...item,
+            height: Math.max(0, item.height * scaleFactor),
+            value: Math.max(0, item.value * scaleFactor),
+            // For past years, reduce the chance of active months
+            active: yearDifference > 0 ? (item.earnings > 0 && Math.random() > 0.3) : item.earnings > 0,
+          }));
+        }
+
+        setCurrentEarningData(finalData);
+      } catch (error) {
+        console.error("Error fetching earning data:", error);
+        // Fallback to empty data structure if API fails
+        const fallbackData = [
+          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ].map(month => ({
+          month,
+          height: 0,
+          value: 0,
+          active: false,
+        }));
+        setCurrentEarningData(fallbackData);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchEarningData();
+  }, [selectedYear]); // Re-run effect when the selected year changes
 
   const chartHeight = 161;
   const chartWidth = 737;
 
+  // Custom Bar component to apply styling based on active state.
   const CustomBar = (props) => {
     const { x, y, width, height, payload } = props;
     const isActive = payload.active;
 
+    // Use a foreignObject to apply Tailwind classes to the bars.
     return (
       <foreignObject x={x} y={y} width={width} height={height} style={{ overflow: 'visible' }}>
         <div
-          style={{ width: width, height: height, background: isActive ? '#013D3B' : undefined }}
-          className={`w-10 ${isActive ? 'h-40' : 'bg-gray-300'} rounded`}
+          style={{ width: width, height: height }}
+          className={`w-10 ${isActive ? 'bg-[#013D3B]' : 'bg-gray-300'} rounded`}
         />
       </foreignObject>
     );
   };
 
+  // Custom Tooltip component for a styled tooltip.
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className="p-2 bg-white rounded shadow-xl text-black text-xs font-montserrat">
           <p className="font-bold">{label}</p>
-          <p className="text-gray-600">{`Earning: $${payload[0].value}`}</p>
+          <p className="text-gray-600">{`Earning: $${payload[0].value.toFixed(2)}`}</p>
         </div>
       );
     }
@@ -99,6 +139,7 @@ const EarningOverviewChart = () => {
     setIsDropdownOpen(false);
   };
 
+  // Main component render logic.
   return (
     <div className="h-full w-full px-6 py-5 bg-white rounded shadow-xl flex flex-col justify-start items-start gap-2.5">
       {/* Header Section */}
@@ -157,7 +198,8 @@ const EarningOverviewChart = () => {
           <div className=" flex items-center gap-4 relative w-full">
             <div className="absolute top-0 left-0 w-full h-0 border-t border-dashed border-gray-400 z-10"></div>
             <div className="absolute right-0 bg-white text-black text-xs font-medium font-montserrat leading-tight z-10">
-              $179
+              {/* Display the max value from the current data */}
+              {currentEarningData.length > 0 ? `$${Math.max(...currentEarningData.map(item => item.value)).toFixed(2)}` : ""}
             </div>
           </div>
 
@@ -165,36 +207,41 @@ const EarningOverviewChart = () => {
             className="w-full"
             style={{ height: `${chartHeight + 20}px` }}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={currentEarningData}
-                margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-              >
-                <XAxis
-                  dataKey="month"
-                  axisLine={false}
-                  tickLine={false}
-                  interval={0}
-                  tick={{
-                    fill: "#6b7280",
-                    fontSize: 12,
-                    fontWeight: 500,
-                    fontFamily: "Montserrat",
-                  }}
-                  height={30}
-                />
-                <YAxis
-                  hide
-                  domain={[0, 180]}
-                />
-                <Tooltip cursor={false} content={<CustomTooltip />} />
-                <Bar
-                  dataKey="height"
-                  shape={<CustomBar />}
-                  isAnimationActive={false}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {/* Show a loading message if data is being fetched */}
+            {loading ? (
+              <div className="flex items-center justify-center h-full text-gray-500">Loading chart data...</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={currentEarningData}
+                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                >
+                  <XAxis
+                    dataKey="month"
+                    axisLine={false}
+                    tickLine={false}
+                    interval={0}
+                    tick={{
+                      fill: "#6b7280",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      fontFamily: "Montserrat",
+                    }}
+                    height={30}
+                  />
+                  <YAxis
+                    hide
+                    domain={[0, Math.max(...currentEarningData.map(item => item.value)) * 1.2]} // Adjust Y-axis domain dynamically
+                  />
+                  <Tooltip cursor={false} content={<CustomTooltip />} />
+                  <Bar
+                    dataKey="height"
+                    shape={<CustomBar />}
+                    isAnimationActive={false}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>
