@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { PlusIcon, TrashIcon, CheckCircleIcon, XCircleIcon, PencilIcon } from "@heroicons/react/24/outline";
 
 // Real API configuration - Update base_url with your actual domain
@@ -176,7 +177,7 @@ export default function AffiliateProductManagement() {
   const handleSubmit = async () => {
     
     if (!formState.category || !formState.title || !formState.affiliate_url) {
-      alert("Please fill in all required fields");
+  toast.error("Please fill in all required fields");
       return;
     }
 
@@ -199,11 +200,11 @@ export default function AffiliateProductManagement() {
       if (editingProduct) {
         // Update existing product
         result = await api.updateProduct(editingProduct.id, formData);
-        alert("Product updated successfully!");
+  toast.success("Product updated successfully!");
       } else {
         // Create new product
         result = await api.createProduct(formData);
-        alert("Product created successfully!");
+  toast.success("Product created successfully!");
       }
 
       // Refresh the products list
@@ -225,7 +226,7 @@ export default function AffiliateProductManagement() {
       if (error.message.includes('Failed to fetch') || error.message.includes('401')) {
         setAuthError(true);
       }
-      alert(`Error saving product: ${error.message}`);
+  toast.error(`Error saving product: ${error.message}`);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -245,12 +246,39 @@ export default function AffiliateProductManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    toast((t) => (
+      <span>
+        Are you sure you want to delete this product?
+        <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+          <button
+            style={{ background: '#ef4444', color: 'white', padding: '4px 12px', borderRadius: 4 }}
+            onClick={async () => {
+              toast.dismiss(t.id);
+              setLoading(true);
+              try {
+                await api.deleteProduct(id);
+                toast.success("Product deleted successfully!");
+                await fetchProducts();
+              } catch (error) {
+                toast.error(`Error deleting product: ${error.message}`);
+              } finally {
+                setLoading(false);
+              }
+            }}
+          >Yes</button>
+          <button
+            style={{ background: '#e5e7eb', color: '#111827', padding: '4px 12px', borderRadius: 4 }}
+            onClick={() => toast.dismiss(t.id)}
+          >No</button>
+        </div>
+      </span>
+    ), { duration: 8000 });
+    return;
 
     try {
       setLoading(true);
       await api.deleteProduct(id);
-      alert("Product deleted successfully!");
+  // toast handled in confirmation above
       
       // Refresh the products list
       await fetchProducts();
@@ -259,7 +287,7 @@ export default function AffiliateProductManagement() {
       if (error.message.includes('Failed to fetch') || error.message.includes('401')) {
         setAuthError(true);
       }
-      alert(`Error deleting product: ${error.message}`);
+  // toast handled in confirmation above
     } finally {
       setLoading(false);
     }
@@ -271,7 +299,7 @@ export default function AffiliateProductManagement() {
       const newStatus = !product.is_active;
       
       await api.toggleProductStatus(id, newStatus);
-      alert("Product status updated!");
+  toast.success("Product status updated!");
       
       // Refresh the products list
       await fetchProducts();
@@ -280,7 +308,7 @@ export default function AffiliateProductManagement() {
       if (error.message.includes('Failed to fetch') || error.message.includes('401')) {
         setAuthError(true);
       }
-      alert(`Error updating product status: ${error.message}`);
+  toast.error(`Error updating product status: ${error.message}`);
     }
   };
 
@@ -323,7 +351,7 @@ export default function AffiliateProductManagement() {
 
   return (
     <div className="min-h-screen p-4 sm:p-8 bg-white text-black">
-      <h2 className="text-2xl font-semibold mb-6 text-[#013D3B]">Affiliate Product Management</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-[#000000]">Affiliate Product Management</h2>
 
       {/* Error Display */}
       {error && (
@@ -339,44 +367,51 @@ export default function AffiliateProductManagement() {
       )}
 
       {/* Add/Edit Product Form */}
-      <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200 shadow-sm">
+      <div className=" rounded p-6 mb-6  shadow-lg">
         <h3 className="text-xl font-semibold mb-4 text-[#013D3B]">
           {editingProduct ? "Edit Product" : "Add New Product"}
         </h3>
         
         {/* API Connection Note */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm">
+        {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm">
           <p className="text-blue-800">
             ✅ Bearer token authentication added to all API calls
           </p>
-        </div>
+        </div> */}
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Category Dropdown */}
             <div className="flex flex-col">
-              <label htmlFor="category" className="text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="category" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 Category <span className="text-red-500">*</span>
               </label>
-              <select
-                id="category"
-                name="category"
-                value={formState.category}
-                onChange={handleInputChange}
-                required
-                className="p-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B]"
-              >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  id="category"
+                  name="category"
+                  value={formState.category}
+                  onChange={handleInputChange}
+                  required
+                  className="p-3 pr-10 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] font-semibold text-[#013D3B]"
+                >
+                  <option value="" className="text-gray-400">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id} className="text-[#013D3B] font-bold">
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M6 9l6 6 6-6"/></svg>
+                </span>
+              </div>
             </div>
 
             {/* Product Title */}
             <div className="flex flex-col">
-              <label htmlFor="title" className="text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="title" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M4 6h16M4 12h8"/></svg>
                 Product Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -387,53 +422,57 @@ export default function AffiliateProductManagement() {
                 value={formState.title}
                 onChange={handleInputChange}
                 required
-                className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B]"
+                className="p-3 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] font-semibold text-[#013D3B]"
               />
             </div>
           </div>
 
-          {/* Affiliate URL */}
-          <div className="flex flex-col">
-            <label htmlFor="affiliate_url" className="text-sm font-medium text-gray-700 mb-1">
-              Affiliate URL <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="url"
-              id="affiliate_url"
-              name="affiliate_url"
-              placeholder="https://www.amazon.com/..."
-              value={formState.affiliate_url}
-              onChange={handleInputChange}
-              required
-              className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B]"
-            />
-          </div>
-
-          {/* Image Upload */}
-          <div className="flex flex-col">
-            <label htmlFor="image" className="text-sm font-medium text-gray-700 mb-1">
-              Product Image
-            </label>
-            <input
-              type="file"
-              id="image"
-              name="image"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#013D3B] file:text-white hover:file:bg-gray-700"
-            />
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Product preview"
-                className="w-32 h-20 object-cover rounded-md mt-2 border border-gray-200"
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Affiliate URL */}
+            <div className="flex-1 flex flex-col">
+              <label htmlFor="affiliate_url" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M4 6h16M4 12h8"/></svg>
+                Affiliate URL <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="url"
+                id="affiliate_url"
+                name="affiliate_url"
+                placeholder="https://www.amazon.com/..."
+                value={formState.affiliate_url}
+                onChange={handleInputChange}
+                required
+                className="p-3 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] font-semibold text-[#013D3B]"
               />
-            )}
+            </div>
+            {/* Image Upload */}
+            <div className="flex-1 flex flex-col">
+              <label htmlFor="image" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#013D3B" strokeWidth="2"/><path stroke="#013D3B" strokeWidth="2" d="M8 12l2 2 4-4"/></svg>
+                Product Image
+              </label>
+              <input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="p-3 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#013D3B] file:text-white hover:file:bg-gray-700"
+              />
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Product preview"
+                  className="w-32 h-20 object-cover rounded-xl mt-2 border-2 border-[#013D3B] shadow-lg"
+                />
+              )}
+            </div>
           </div>
 
           {/* Disclaimer */}
           <div className="flex flex-col">
-            <label htmlFor="disclaimer" className="text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="disclaimer" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#013D3B" strokeWidth="2"/><path stroke="#013D3B" strokeWidth="2" d="M8 12h8"/></svg>
               Disclaimer
             </label>
             <textarea
@@ -442,7 +481,7 @@ export default function AffiliateProductManagement() {
               rows={2}
               value={formState.disclaimer}
               onChange={handleInputChange}
-              className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B]"
+              className="p-3 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] font-semibold text-[#013D3B]"
             />
           </div>
 
@@ -452,17 +491,18 @@ export default function AffiliateProductManagement() {
               type="button"
               onClick={handleSubmit}
               disabled={loading}
-              className="flex items-center justify-center gap-2 px-6 py-2 bg-[#013D3B] text-white font-semibold rounded-md hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-[#013D3B] via-blue-700 to-[#013D3B] text-white font-extrabold rounded shadow-lg hover:scale-105 hover:bg-blue-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <PlusIcon className="h-5 w-5" />
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/><path stroke="white" strokeWidth="2" d="M12 8v8M8 12h8"/></svg>
               {loading ? "Saving..." : (editingProduct ? "Update Product" : "Add Product")}
             </button>
             {editingProduct && (
               <button
                 type="button"
                 onClick={handleCancel}
-                className="px-6 py-2 bg-gray-300 text-gray-700 font-semibold rounded-md hover:bg-gray-400 transition-colors duration-200"
+                className="px-8 py-3 bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 text-gray-700 font-extrabold rounded-2xl flex items-center justify-center gap-2 shadow-lg hover:scale-105 hover:bg-gray-500 transition-all duration-200"
               >
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#111827" strokeWidth="2" d="M6 6l12 12M6 18L18 6"/></svg>
                 Cancel
               </button>
             )}
@@ -512,7 +552,7 @@ export default function AffiliateProductManagement() {
                         {getCategoryName(product.category)}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-center">
+                    <td className="py-4 px-4 text-start">
                       <div className="font-semibold text-[#013D3B]">{product.total_clicks}</div>
                       <div className="text-xs text-gray-500">Total</div>
                     </td>
@@ -529,32 +569,28 @@ export default function AffiliateProductManagement() {
                       <div className="flex justify-center items-center space-x-2">
                         <button
                           onClick={() => handleEdit(product)}
-                          className="text-[#013D3B] hover:text-gray-700 transition-colors duration-200"
+                          className="bg-gradient-to-r from-blue-100 via-blue-300 to-blue-100 p-2 rounded-full shadow hover:scale-110 transition-all duration-200"
                           title="Edit"
                         >
-                          <PencilIcon className="h-5 w-5" />
+                          <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M4 20h4l10-10a2 2 0 0 0-2.83-2.83L5.17 17.17A2 2 0 0 0 4 20z"/></svg>
                         </button>
                         <button
                           onClick={() => handleToggleActive(product.id)}
-                          className={`transition-colors duration-200 ${
-                            product.is_active 
-                              ? "text-red-500 hover:text-red-600" 
-                              : "text-green-500 hover:text-green-600"
-                          }`}
+                          className={`bg-gradient-to-r ${product.is_active ? "from-red-100 via-red-300 to-red-100" : "from-green-100 via-green-300 to-green-100"} p-2 rounded-full shadow hover:scale-110 transition-all duration-200`}
                           title={product.is_active ? "Deactivate" : "Activate"}
                         >
                           {product.is_active ? (
-                            <XCircleIcon className="h-5 w-5" />
+                            <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#ef4444" strokeWidth="2"/><path stroke="#ef4444" strokeWidth="2" d="M8 12h8"/></svg>
                           ) : (
-                            <CheckCircleIcon className="h-5 w-5" />
+                            <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#22c55e" strokeWidth="2"/><path stroke="#22c55e" strokeWidth="2" d="M12 8v8M8 12h8"/></svg>
                           )}
                         </button>
                         <button
                           onClick={() => handleDelete(product.id)}
-                          className="text-red-500 hover:text-red-600 transition-colors duration-200"
+                          className="bg-gradient-to-r from-red-100 via-red-300 to-red-100 p-2 rounded-full shadow hover:scale-110 transition-all duration-200"
                           title="Delete"
                         >
-                          <TrashIcon className="h-5 w-5" />
+                          <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#ef4444" strokeWidth="2"/><path stroke="#ef4444" strokeWidth="2" d="M8 8l8 8M8 16L16 8"/></svg>
                         </button>
                       </div>
                     </td>

@@ -64,7 +64,7 @@ const navItems = [
   },
 
   {
-    name: "Ads Management",
+    name: "Affiliate  Management",
     href: "/admin/ad-management",
     icon: FileVideo,
   },

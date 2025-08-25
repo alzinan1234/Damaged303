@@ -5,6 +5,8 @@ import axios from 'axios';
 import { FaAmazon, FaHospitalUser } from "react-icons/fa";
 import { MdGeneratingTokens } from "react-icons/md";
 import { SiSololearn } from "react-icons/si";
+import { FaCircleDollarToSlot } from 'react-icons/fa6';
+import { HiMiniUserGroup } from 'react-icons/hi2';
 
 const MetricCard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -90,7 +92,7 @@ const MetricCard = () => {
         </div>
         <div className="bg-[#013D3B] text-white rounded-full p-3 flex items-center justify-center w-12 h-12">
           {/* Chart Icon */}
-       <SiSololearn  className='w-10 h-10'/>
+       <FaCircleDollarToSlot  className='w-10 h-10'/>
         </div>
       </div>
 
@@ -104,7 +106,7 @@ const MetricCard = () => {
         </div>
         <div className="bg-[#013D3B] text-white rounded-full p-3 flex items-center justify-center w-12 h-12">
           {/* User Icon */}
-         <FaHospitalUser  className="w-10 h-10" />
+         <HiMiniUserGroup  className="w-10 h-10" />
         </div>
       </div>
 
