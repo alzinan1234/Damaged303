@@ -184,7 +184,7 @@ const Sidebar = ({ isOpen, setIsOpen, adminInfo }) => {
                     key={name}
                     href={href}
                     className={`flex items-center py-3 px-4 w-[218px] mx-auto transition-all rounded ${
-                      isActive ? "bg-[#013D3B] text-white" : "text-[#000000]"
+                      isActive ? " bg-gradient-to-r from-[#013D3B] via-[#0A6E6E] to-[#013D3B] text-white" : "text-[#000000]"
                     }`}
                   >
                     <Icon
@@ -203,7 +203,7 @@ const Sidebar = ({ isOpen, setIsOpen, adminInfo }) => {
                   key={name}
                   href={href}
                   className={`flex items-center py-3 px-4 w-[218px] mx-auto transition-all rounded ${
-                    isActive ? "bg-[#013D3B] text-white" : "text-[#000000]"
+                    isActive ? " bg-gradient-to-r from-[#013D3B] via-[#0A6E6E] to-[#013D3B] text-white" : "text-[#000000]"
                   }`}
                 >
                   <Icon

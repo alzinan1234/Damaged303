@@ -182,7 +182,7 @@ export default function EarningsTable() {
       <h2 className="text-gray-900 text-2xl font-semibold mb-4">Subscriber Overview</h2>
       <div className="bg-[#013D3B] rounded-xl p-6 mb-6 w-full max-w-2xl shadow-xl text-white">
         <div className="text-md font-medium opacity-80">Total Earnings</div>
-        <div className="text-4xl font-bold mt-1">$25,215</div>
+        <div className="text-4xl font-bold mt-1">$ 314.97</div>
       </div>
       {/* Filters Section */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">

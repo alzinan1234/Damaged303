@@ -12,6 +12,7 @@ const NotificationPage = ({ onBackClick }) => {
     users,
     loading,
     usersLoading,
+  listLoading,
     currentPage,
     totalCount,
     nextPage,
@@ -94,7 +95,8 @@ const NotificationPage = ({ onBackClick }) => {
         onDeleteNotification={handleDeleteNotification}
         onCancelScheduled={handleCancelScheduled}
         filteredNotifications={filteredNotifications}
-        onSelectAll={handleSelectAll}
+    onSelectAll={handleSelectAll}
+    listLoading={listLoading}
       />
 
       {/* Pagination */}

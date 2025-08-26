@@ -5,6 +5,7 @@ export const useNotifications = () => {
   const [allNotifications, setAllNotifications] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [listLoading, setListLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -35,8 +36,8 @@ export const useNotifications = () => {
 // In useNotifications.js - fetchNotifications function
 const fetchNotifications = async (page = 1) => {
   try {
-    setLoading(true);
-    
+    setListLoading(true);
+
     const data = await notificationApi.fetchNotifications(
       page,
       searchTerm,
@@ -44,30 +45,38 @@ const fetchNotifications = async (page = 1) => {
       filterType === 'all' ? '' : filterType,
       ''
     );
-    
+
     // Fix: Use the correct response structure
     setAllNotifications(data.notifications || []);  // Changed from data.results
     setTotalCount(data.stats?.total || 0);          // Changed from data.count
-    
+
     // Handle pagination - your API might not have next/previous
     // You'll need to calculate these based on pagination object
     const pagination = data.pagination || {};
     setNextPage(pagination.has_next ? page + 1 : null);
     setPreviousPage(pagination.has_prev ? page - 1 : null);
-    
+
   } catch (error) {
     console.error('Error fetching notifications:', error);
     alert('Failed to fetch notifications');
   } finally {
-    setLoading(false);
+    setListLoading(false);
   }
 };
 
   // Load data on component mount
   useEffect(() => {
-    fetchNotifications(1);
-    fetchUsers();
-    setCurrentPage(1);
+    // On initial mount show full-page loading; subsequent fetches use listLoading
+    (async () => {
+      try {
+        setLoading(true);
+        await fetchNotifications(1);
+        await fetchUsers();
+        setCurrentPage(1);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   // Refetch when filters change
@@ -75,7 +84,7 @@ const fetchNotifications = async (page = 1) => {
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
-    fetchNotifications(1);
+  fetchNotifications(1);
   }, [searchTerm, filterType, filterStatus]);
 
   // Since we're filtering on server, use allNotifications directly
@@ -203,27 +212,28 @@ const handleCancelScheduled = async (notificationToCancel) => {
   };
 
   // Pagination handlers
-  const handleNextPage = () => {
-    if (nextPage) {
-      const pageNumber = currentPage + 1;
-      setCurrentPage(pageNumber);
-      fetchNotifications(pageNumber);
-    }
-  };
+ const handleNextPage = () => {
+  if (nextPage) {
+    const pageNumber = currentPage + 1;
+    setCurrentPage(pageNumber);
+    fetchNotifications(pageNumber);
+  }
+};
 
-  const handlePreviousPage = () => {
-    if (previousPage) {
-      const pageNumber = currentPage - 1;
-      setCurrentPage(pageNumber);
-      fetchNotifications(pageNumber);
-    }
-  };
+const handlePreviousPage = () => {
+  if (previousPage) {
+    const pageNumber = currentPage - 1;
+    setCurrentPage(pageNumber);
+    fetchNotifications(pageNumber);
+  }
+};
 
   return {
     // State
     allNotifications,
     users,
-    loading,
+  loading,
+  listLoading,
     usersLoading,
     currentPage,
     totalCount,

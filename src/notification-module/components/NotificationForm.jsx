@@ -232,17 +232,20 @@ const handleSendPushNotification = async () => {
       {/* Notification Types Selection */}
       <div className="mb-6">
         <label className="block text-sm font-bold text-black mb-2">Notification Types</label>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-3 w-full">
           {notificationTypes.map(type => (
-            <label key={type.id} className="flex items-center space-x-3 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+            <label key={type.id} className="flex  items-center w-full space-x-3 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
               <input
                 type="checkbox"
                 checked={selectedNotificationTypes.includes(type.id)}
                 onChange={() => handleNotificationTypeChange(type.id)}
                 className="h-4 w-4 text-[#013D3B] rounded"
               />
-              <span className="text-lg">{type.icon}</span>
-              <span className="text-sm font-medium text-black">{type.label}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-lg">{type.icon}</span>
+                <span className="text-sm font-medium text-black">{type.label}</span>
+              </div>
+              {/* <span className="text-sm text-gray-500">Select</span> */}
             </label>
           ))}
         </div>
@@ -255,7 +258,7 @@ const handleSendPushNotification = async () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 item-center">
         <div>
           <label className="block text-sm font-bold text-black mb-2">Recipients</label>
           <select
@@ -267,11 +270,22 @@ const handleSendPushNotification = async () => {
                 setShowUserDropdown(false);
               }
             }}
-            className="w-full p-4 border border-gray-400 rounded shadow-lg focus:outline-none text-black bg-white"
+            className="w-full p-4 border border-gray-400 rounded focus:outline-none text-black bg-white"
           >
             <option value="all">All Users</option>
             <option value="specific">Select Specific Users</option>
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-black mb-2">Title</label>
+          <input
+            type="text"
+            placeholder="Enter notification title"
+            value={pushTitle}
+            onChange={(e) => setPushTitle(e.target.value)}
+            className="w-full p-4 border border-gray-400 rounded focus:outline-none text-black bg-white"
+          />
         </div>
       </div>
 
@@ -280,7 +294,7 @@ const handleSendPushNotification = async () => {
           <label className="block text-sm font-bold text-black mb-2">Select Users</label>
           <div className="relative">
             <div
-              className="w-full p-4 border border-gray-400 rounded-xl cursor-pointer flex items-center justify-between shadow-lg bg-white"
+              className="w-full p-4 border border-gray-400 rounded-xl cursor-pointer flex items-center justify-between  bg-white"
               onClick={() => setShowUserDropdown(!showUserDropdown)}
             >
               <span className="text-[#000000] font-semibold">
@@ -341,16 +355,7 @@ const handleSendPushNotification = async () => {
         </div>
       )}
 
-      <div className="mb-6">
-        <label className="block text-sm font-bold text-black mb-2">Title</label>
-        <input
-          type="text"
-          placeholder="Enter notification title"
-          value={pushTitle}
-          onChange={(e) => setPushTitle(e.target.value)}
-          className="w-full p-4 border border-gray-400 rounded shadow-lg focus:outline-none text-black bg-white"
-        />
-      </div>
+  {/* Title moved above to sit alongside Recipients */}
 
       <div className="mb-6">
         <label className="block text-sm font-bold text-black mb-2">Message</label>
@@ -359,7 +364,7 @@ const handleSendPushNotification = async () => {
           value={pushDescription}
           onChange={(e) => setPushDescription(e.target.value)}
           rows="3"
-          className="w-full p-4 border border-gray-400 rounded shadow-lg focus:outline-none text-black resize-none bg-white"
+          className="w-full p-4 border border-gray-400 rounded  focus:outline-none text-black resize-none bg-white"
         />
       </div>
 

@@ -8,7 +8,12 @@ const NotificationItem = ({
   onDelete, 
   onCancelScheduled 
 }) => {
-  const statusClasses = notification.is_read ? 'text-gray-500' : 'text-black';
+  const statusClasses = notification.is_read ? 'text-gray-500' : 'text-gray-900';
+  const accentClass = notification.status === 'failed'
+    ? 'bg-red-400'
+    : notification.status === 'pending'
+    ? 'bg-yellow-400'
+    : 'bg-[#013D3B]';
   
   const getRelativeTime = (notification) => {
     // Handle different time formats from your API
@@ -23,31 +28,33 @@ const NotificationItem = ({
 
   const getStatusBadge = () => {
     const status = notification.status;
+    const base = 'px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-2';
     if (status === 'pending') {
-      return <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>;
+      return <span className={`${base} bg-yellow-50 text-yellow-800 border border-yellow-100`}>Pending</span>;
     }
     if (status === 'sent') {
-      return <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Sent</span>;
+      return <span className={`${base} bg-green-50 text-green-800 border border-green-100`}>Sent</span>;
     }
     if (status === 'failed') {
-      return <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Failed</span>;
+      return <span className={`${base} bg-red-50 text-red-800 border border-red-100`}>Failed</span>;
     }
-    return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">Unknown</span>;
+    return <span className={`${base} bg-gray-50 text-gray-800 border border-gray-100`}>Unknown</span>;
   };
 
   const getTypeBadges = () => {
-    const typeColors = {
-      push: 'bg-blue-100 text-blue-800',
-      email: 'bg-purple-100 text-purple-800',
-      in_app: 'bg-indigo-100 text-indigo-800'
+    const emoji = { push: '🔔', email: '✉️', in_app: '💬' };
+    const colors = {
+      push: 'bg-blue-50 text-blue-800 border border-blue-100',
+      email: 'bg-purple-50 text-purple-800 border border-purple-100',
+      in_app: 'bg-indigo-50 text-indigo-800 border border-indigo-100'
     };
-    
-    // Handle array of notification types from your API
+
     const types = notification.notification_types || ['push'];
-    
+
     return types.map(type => (
-      <span key={type} className={`${typeColors[type]} px-2 py-1 rounded-full text-xs capitalize mr-1`}>
-        {type.replace('_', ' ')}
+      <span key={type} className={`${colors[type]} px-3 py-1 rounded-full text-xs font-medium mr-2 inline-flex items-center`}>
+        <span className="text-sm mr-1">{emoji[type] || '🔔'}</span>
+        <span className="capitalize">{type.replace('_', ' ')}</span>
       </span>
     ));
   };
@@ -63,68 +70,88 @@ const NotificationItem = ({
   };
 
   return (
-    <div className={`p-4 border-b border-gray-200 last:border-b-0 ${isSelected ? 'bg-blue-50' : 'bg-white'}`}>
-      <div className="flex items-start space-x-3">
+    <div
+      className={`flex items-start gap-4 p-4 rounded-lg bg-white border border-gray-100 shadow-lg  transition-shadow duration-200 ${isSelected ? 'ring-2 ring-blue-200' : ''}`}
+      role="article"
+      aria-labelledby={`notification-title-${notification.id}`}
+      tabIndex={0}
+    >
+      {/* colored accent */}
+      <div className={`w-1 h-full rounded ${accentClass} self-stretch`} aria-hidden="true" />
+
+      <div className="flex-shrink-0 pt-1">
         <input
           type="checkbox"
           checked={isSelected}
           onChange={(e) => onSelect(notification.id, e.target.checked)}
-          className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300"
+          className="h-4 w-4 text-blue-600 rounded border-gray-300"
+          aria-label={`Select notification ${notification.title}`}
         />
-        
-        <div className={`flex-grow ${statusClasses} transition-colors duration-200`}>
-          <div className="flex items-start justify-between">
-            <div className="flex-grow">
-              <div className="flex items-center space-x-2 mb-1">
-                {getTypeBadges()}
-                {getStatusBadge()}
-              </div>
-              <p className="text-xs text-gray-500 font-medium mb-1">
-                To: {getRecipientText()}
-              </p>
-              <p className="text-base font-semibold mb-1">{notification.title}</p>
-              <p className="text-sm text-gray-700 mb-2">{notification.message}</p>
-              
-              {/* Show counts for sent notifications */}
-              {notification.status === 'sent' && (
-                <p className="text-xs text-gray-500 mb-2">
-                  Sent: {notification.sent_count || 0} | Failed: {notification.failed_count || 0}
-                </p>
-              )}
-              
-              <div className="flex items-center space-x-4 text-xs text-gray-400">
-                <span className="flex items-center space-x-1">
-                  <ClockIcon className="h-3 w-3" />
-                  <span>
-                    {notification.status === 'pending' && notification.scheduled_at
-                      ? `Scheduled for ${new Date(notification.scheduled_at).toLocaleString()}`
-                      : getRelativeTime(notification)
-                    }
-                  </span>
-                </span>
-                {notification.created_by && (
-                  <span>Created by: {notification.created_by.name}</span>
-                )}
-              </div>
+      </div>
+
+      <div className={`flex-1 min-w-0 ${statusClasses} transition-colors duration-200`}>
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              {getTypeBadges()}
+              {getStatusBadge()}
             </div>
-            
-            <div className="flex items-center space-x-2 ml-4">
-              {/* {notification.status === 'pending' && (
+
+            <p className="text-xs text-gray-500 mb-1">To: {getRecipientText()}</p>
+
+            <h4 id={`notification-title-${notification.id}`} className="text-sm md:text-base font-semibold text-gray-900 truncate mb-1">
+              {notification.title}
+            </h4>
+
+            <p className="text-sm text-gray-700 mb-2 truncate">{notification.message}</p>
+
+            {notification.status === 'sent' && (
+              <p className="text-xs text-gray-500 mb-2">Sent: {notification.sent_count || 0} &nbsp;|&nbsp; Failed: {notification.failed_count || 0}</p>
+            )}
+
+            <div className="flex items-center flex-wrap gap-4 text-xs text-gray-500">
+              <span className="flex items-center gap-1">
+                <ClockIcon className="h-4 w-4" />
+                <span>
+                  {notification.status === 'pending' && notification.scheduled_at
+                    ? `Scheduled for ${new Date(notification.scheduled_at).toLocaleString()}`
+                    : getRelativeTime(notification)
+                  }
+                </span>
+              </span>
+
+              {notification.created_by && (
+                <span>Created by: {notification.created_by.name}</span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-2 ml-2">
+            <div className="flex items-center gap-2">
+              {notification.status === 'pending' && (
                 <button
                   onClick={() => onCancelScheduled(notification)}
-                  className="text-orange-600 hover:text-orange-400 p-1 rounded-full transition-colors"
+                  className="inline-flex items-center justify-center p-2 rounded-md text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition"
                   title="Cancel scheduled notification"
+                  aria-label="Cancel scheduled notification"
                 >
                   <XCircleIcon className="h-5 w-5" />
                 </button>
-              )} */}
+              )}
+
               <button
                 onClick={() => onDelete(notification)}
-                className="text-red-600 hover:text-red-400 p-1 rounded-full transition-colors"
+                className="inline-flex items-center justify-center p-2 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
                 title="Delete notification"
+                aria-label="Delete notification"
               >
                 <TrashIcon className="h-5 w-5" />
               </button>
+            </div>
+
+            <div className="text-right text-xs text-gray-400">
+              <span className="block">{notification.recipient_type === 'all' ? `${notification.target_count || 0} recipients` : `${notification.target_count || 0} selected`}</span>
+              <span className="block">{notification.channel || ''}</span>
             </div>
           </div>
         </div>

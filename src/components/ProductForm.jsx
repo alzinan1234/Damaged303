@@ -29,8 +29,8 @@ const ProductForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Category Dropdown */}
           <div className="flex flex-col">
-            <label htmlFor="category" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <label htmlFor="category" className="text-sm font-bold text-black mb-2 flex items-center gap-2">
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
               Category <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -40,7 +40,7 @@ const ProductForm = ({
                 value={formState.category}
                 onChange={handleInputChange}
                 required
-                className="p-3 pr-10 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] font-semibold text-[#013D3B]"
+                className="w-full p-3 pr-10 border border-gray-300 rounded text-black font-normal bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
               >
                 <option value="" className="text-gray-400">Select a category</option>
                 {categories.map((category) => (
@@ -49,16 +49,16 @@ const ProductForm = ({
                   </option>
                 ))}
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              {/* <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M6 9l6 6 6-6"/></svg>
-              </span>
+              </span> */}
             </div>
           </div>
 
           {/* Product Title */}
           <div className="flex flex-col">
-            <label htmlFor="title" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M4 6h16M4 12h8"/></svg>
+            <label htmlFor="title" className="text-sm font-bold text-black mb-2 flex items-center gap-2">
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M4 6h16M4 12h8"/></svg>
               Product Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -69,7 +69,7 @@ const ProductForm = ({
               value={formState.title}
               onChange={handleInputChange}
               required
-              className="p-3 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] font-semibold text-[#013D3B]"
+              className="p-3 border border-gray-300 rounded text-black font-normal bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
             />
           </div>
         </div>
@@ -77,8 +77,8 @@ const ProductForm = ({
         <div className="flex flex-col md:flex-row gap-4">
           {/* Affiliate URL */}
           <div className="flex-1 flex flex-col">
-            <label htmlFor="affiliate_url" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#013D3B" strokeWidth="2" d="M4 6h16M4 12h8"/></svg>
+            <label htmlFor="affiliate_url" className="text-sm font-bold text-black mb-2 flex items-center gap-2">
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M4 6h16M4 12h8"/></svg>
               Affiliate URL <span className="text-red-500">*</span>
             </label>
             <input
@@ -89,13 +89,13 @@ const ProductForm = ({
               value={formState.affiliate_url}
               onChange={handleInputChange}
               required
-              className="p-3 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] font-semibold text-[#013D3B]"
+              className="p-3 border border-gray-300 rounded text-black font-normal bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
             />
           </div>
           {/* Image Upload */}
           <div className="flex-1 flex flex-col">
-            <label htmlFor="image" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#013D3B" strokeWidth="2"/><path stroke="#013D3B" strokeWidth="2" d="M8 12l2 2 4-4"/></svg>
+            <label htmlFor="image" className="text-sm font-bold text-black mb-2 flex items-center gap-2">
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path stroke="currentColor" strokeWidth="2" d="M8 12l2 2 4-4"/></svg>
               Product Image
             </label>
             <input
@@ -104,7 +104,7 @@ const ProductForm = ({
               name="image"
               accept="image/*"
               onChange={handleFileChange}
-              className="p-3 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#013D3B] file:text-white hover:file:bg-gray-700"
+              className="p-3 border border-gray-300 rounded text-black font-normal bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-normal file:bg-gray-800 file:text-white hover:file:bg-gray-700"
             />
             {imagePreview && (
               <img
@@ -118,8 +118,8 @@ const ProductForm = ({
 
         {/* Disclaimer */}
         <div className="flex flex-col">
-          <label htmlFor="disclaimer" className="text-sm font-bold text-[#013D3B] mb-2 flex items-center gap-2">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#013D3B" strokeWidth="2"/><path stroke="#013D3B" strokeWidth="2" d="M8 12h8"/></svg>
+          <label htmlFor="disclaimer" className="text-sm font-bold text-black mb-2 flex items-center gap-2">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2"/><path stroke="currentColor" strokeWidth="2" d="M8 12h8"/></svg>
             Disclaimer
           </label>
           <textarea
@@ -128,7 +128,7 @@ const ProductForm = ({
             rows={2}
             value={formState.disclaimer}
             onChange={handleInputChange}
-            className="p-3 border-2 border-[#013D3B] rounded-xl bg-gradient-to-r from-white via-blue-50 to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#013D3B] focus:border-[#013D3B] font-semibold text-[#013D3B]"
+            className="p-3 border border-gray-300 rounded text-black font-normal bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
           />
         </div>
 
