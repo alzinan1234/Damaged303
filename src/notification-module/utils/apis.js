@@ -69,11 +69,8 @@ export const notificationApi = {
   // Bulk delete notifications - NEW API
   bulkDelete: async (notificationIds) => {
     const response = await apiClient.delete('/api/notifications/bulk-delete/', {
-      notification_ids: notificationIds
-      
-      
+      data: { notification_ids: notificationIds }
     });
-   
     return response.data;
   }
 };
