@@ -1,6 +1,7 @@
 "use client"
 
-import NotificationPage from '@/components/Notification/NotificationPage'
+
+import { NotificationPage } from '@/notification-module'
 import React from 'react'
 
 const page = () => {
