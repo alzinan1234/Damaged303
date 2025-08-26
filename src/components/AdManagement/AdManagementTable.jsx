@@ -500,7 +500,7 @@ export default function AffiliateProductManagement() {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="px-8 py-3 bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 text-gray-700 font-extrabold rounded-2xl flex items-center justify-center gap-2 shadow-lg hover:scale-105 hover:bg-gray-500 transition-all duration-200"
+                className="px-8 py-3 bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 text-gray-700 font-extrabold rounded-2xl flex items-center justify-center gap- shadow-lg hover:scale-105 hover:bg-gray-500 transition-all duration-200"
               >
                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#111827" strokeWidth="2" d="M6 6l12 12M6 18L18 6"/></svg>
                 Cancel

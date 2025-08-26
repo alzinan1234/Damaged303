@@ -17,18 +17,18 @@ function AvatarImage({ src, alt, fallbackText }) {
   );
 }
 
-// Main component for the Recent Subscribers and Token Users cards
-const RecentSubscribersAndTokenUsers = () => {
+// Main component for the Recent Subscribers and Recent Products cards
+const RecentSubscribersAndProducts = () => {
   const router = useRouter();
   
   // States for API data
   const [recentSubscribers, setRecentSubscribers] = useState([]);
-  const [recentTokenUsers, setRecentTokenUsers] = useState([]);
+  const [recentProducts, setRecentProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // States to manage whether to show all items or limited list
   const [showAllSubscribers, setShowAllSubscribers] = useState(false);
-  const [showAllTokenUsers, setShowAllTokenUsers] = useState(false);
+  const [showAllProducts, setShowAllProducts] = useState(false);
 
   // Fetch data from API
   useEffect(() => {
@@ -47,17 +47,19 @@ const RecentSubscribersAndTokenUsers = () => {
           avatar: `https://placehold.co/34x34/60A5FA/FFFFFF?text=${subscriber.name.split(' ').map(n => n[0]).join('').toUpperCase()}`,
         }));
 
-        // Map recent token users from API
-        const tokenUsersFromApi = apiData.recent_token_users.map((user, index) => ({
-          id: index + 1,
-          name: user.name,
-          email: user.email,
-          tokensUsed: user.tokens_used,
-          avatar: `https://placehold.co/34x34/8B5CF6/FFFFFF?text=${user.name.split(' ').map(n => n[0]).join('').toUpperCase()}`,
+        // Map recent products from API
+        const productsFromApi = apiData.recent_products.map((product, index) => ({
+          id: product.id,
+          title: product.title,
+          category: product.category,
+          totalClicks: product.total_clicks,
+          addedTime: product.added_time,
+          updatedTime: product.updated_time,
+          image: product.image ? `https://maintains-usb-bell-with.trycloudflare.com${product.image}` : `https://placehold.co/34x34/8B5CF6/FFFFFF?text=${product.title.split(' ').map(n => n[0]).join('').toUpperCase()}`,
         }));
 
         setRecentSubscribers(subscribersFromApi);
-        setRecentTokenUsers(tokenUsersFromApi);
+        setRecentProducts(productsFromApi);
       } catch (error) {
         console.error("Error fetching data:", error);
         
@@ -79,20 +81,22 @@ const RecentSubscribersAndTokenUsers = () => {
           }
         ]);
 
-        setRecentTokenUsers([
+        setRecentProducts([
           {
             id: 1,
-            name: 'John Smith',
-            email: 'john@example.com',
-            tokensUsed: 1250,
-            avatar: 'https://placehold.co/34x34/34D399/FFFFFF?text=JS',
+            title: 'HR Gifts',
+            category: 'Talent Acquisition & Labor Trends',
+            totalClicks: 0,
+            addedTime: '00:10',
+            image: 'https://placehold.co/34x34/8B5CF6/FFFFFF?text=HG',
           },
           {
             id: 2,
-            name: 'Maria Garcia',
-            email: 'maria@example.com',
-            tokensUsed: 890,
-            avatar: 'https://placehold.co/34x34/FBBF24/FFFFFF?text=MG',
+            title: 'HR T-Shirt',
+            category: 'Compensation, Benefits & Rewards',
+            totalClicks: 0,
+            addedTime: '23:53',
+            image: 'https://placehold.co/34x34/FBBF24/FFFFFF?text=HT',
           }
         ]);
       } finally {
@@ -107,8 +111,8 @@ const RecentSubscribersAndTokenUsers = () => {
     router.push("/admin/earning");
   };
 
-  const handleTokenUser = () => {
-    router.push("/admin/tokens"); // Navigate to token users page
+  const handleProduct = () => {
+    router.push("/admin/products");
   };
 
   // Toggle functions
@@ -116,13 +120,13 @@ const RecentSubscribersAndTokenUsers = () => {
     setShowAllSubscribers(!showAllSubscribers);
   };
 
-  const handleViewAllTokenUsersClick = () => {
-    setShowAllTokenUsers(!showAllTokenUsers);
+  const handleViewAllProductsClick = () => {
+    setShowAllProducts(!showAllProducts);
   };
 
   // Determine which lists to display
   const subscribersToShow = showAllSubscribers ? recentSubscribers : recentSubscribers.slice(0, 3);
-  const tokenUsersToShow = showAllTokenUsers ? recentTokenUsers : recentTokenUsers.slice(0, 3);
+  const productsToShow = showAllProducts ? recentProducts : recentProducts.slice(0, 3);
 
   if (loading) {
     return (
@@ -131,7 +135,7 @@ const RecentSubscribersAndTokenUsers = () => {
           <div className="text-gray-500">Loading subscribers...</div>
         </div>
         <div className="w-full px-6 py-6 bg-white rounded-lg shadow-xl flex items-center justify-center">
-          <div className="text-gray-500">Loading token users...</div>
+          <div className="text-gray-500">Loading products...</div>
         </div>
       </div>
     );
@@ -162,7 +166,7 @@ const RecentSubscribersAndTokenUsers = () => {
             <div
               key={subscriber.id}
               className="self-stretch py-2 border-b border-gray-200 flex justify-start items-center gap-12 hover:bg-gray-50 cursor-pointer transition-colors"
-              // onClick={handleSubscriber}
+              onClick={handleSubscriber}
             >
               <div className="flex-1 flex justify-start items-center gap-3">
                 <AvatarImage
@@ -192,59 +196,59 @@ const RecentSubscribersAndTokenUsers = () => {
         </div>
       </div>
 
-      {/* Recent Token Users Card */}
+      {/* Recent Products Card */}
       <div className="w-full px-6 py-6 bg-white rounded-lg shadow-xl flex flex-col justify-start items-start gap-3">
         {/* Card Title */}
         <div className="self-stretch flex justify-between items-center">
           <div className="text-black text-xl font-semibold leading-loose">
-            Recent Token Users
+            Recent Products
           </div>
-          {recentTokenUsers.length > 3 && (
+          {recentProducts.length > 3 && (
             <button
-              onClick={handleViewAllTokenUsersClick}
+              onClick={handleViewAllProductsClick}
               className="text-purple-500 text-sm font-medium hover:text-purple-600 transition-colors"
             >
-              {showAllTokenUsers ? 'View Less' : 'View All'}
+              {showAllProducts ? 'View Less' : 'View All'}
             </button>
           )}
         </div>
 
-        {/* Token Users List */}
-        <div className={`self-stretch flex flex-col justify-start items-start gap-1.5 ${showAllTokenUsers ? 'h-52 overflow-y-auto scrollbar-hide' : ''}`}>
-          {tokenUsersToShow.map((user) => (
+        {/* Products List */}
+        <div className={`self-stretch flex flex-col justify-start items-start gap-1.5 ${showAllProducts ? 'h-52 overflow-y-auto scrollbar-hide' : ''}`}>
+          {productsToShow.map((product) => (
             <div
-              key={user.id}
+              key={product.id}
               className="self-stretch py-2 border-b border-gray-200 flex justify-start items-center gap-12 hover:bg-gray-50 cursor-pointer transition-colors"
-              // onClick={handleTokenUser}
+              onClick={handleProduct}
             >
               <div className="flex-1 flex justify-start items-center gap-3">
                 <AvatarImage
-                  src={user.avatar}
-                  alt={user.name}
-                  fallbackText={user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  src={product.image}
+                  alt={product.title}
+                  fallbackText={product.title.split(' ').map(n => n[0]).join('').toUpperCase()}
                 />
                 <div className="flex-1 flex flex-col justify-start items-start">
                   <div className="text-black text-sm font-semibold leading-normal">
-                    {user.name}
+                    {product.title}
                   </div>
                   <div className="self-stretch text-gray-500 text-xs font-medium leading-tight">
-                    {user.email}
+                    {product.category}
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
                   <div className="text-purple-600 text-sm font-semibold">
-                    {user.tokensUsed.toLocaleString()}
+                    {product.totalClicks}
                   </div>
                   <div className="text-gray-400 text-xs">
-                    tokens
+                    clicks
                   </div>
                 </div>
               </div>
             </div>
           ))}
-          {tokenUsersToShow.length === 0 && (
+          {productsToShow.length === 0 && (
             <div className="self-stretch py-4 text-center text-gray-500 text-sm">
-              No recent token users
+              No recent products
             </div>
           )}
         </div>
@@ -253,4 +257,4 @@ const RecentSubscribersAndTokenUsers = () => {
   );
 };
 
-export default RecentSubscribersAndTokenUsers;
+export default RecentSubscribersAndProducts;
