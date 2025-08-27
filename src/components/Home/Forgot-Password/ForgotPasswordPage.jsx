@@ -13,8 +13,56 @@ export default function ForgotPasswordFlow() {
   const [loading, setLoading] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const otpInputRefs = useRef([]);
+
+  /** ---------- Password Validation ---------- */
+  const validatePassword = (password) => {
+    if (!password) {
+      return "Password is required";
+    }
+    if (password.length < 8) {
+      return "Password must be at least 8 characters long";
+    }
+    return "";
+  };
+
+  const validateConfirmPassword = (password, confirmPass) => {
+    if (!confirmPass) {
+      return "Please confirm your password";
+    }
+    if (password !== confirmPass) {
+      return "Passwords do not match";
+    }
+    return "";
+  };
+
+  /** ---------- Handle Password Changes ---------- */
+  const handleNewPasswordChange = (e) => {
+    const password = e.target.value;
+    setNewPassword(password);
+    
+    // Real-time validation
+    const error = validatePassword(password);
+    setPasswordError(error);
+    
+    // Also validate confirm password if it exists
+    if (confirmPassword) {
+      const confirmError = validateConfirmPassword(password, confirmPassword);
+      setConfirmPasswordError(confirmError);
+    }
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const confirmPass = e.target.value;
+    setConfirmPassword(confirmPass);
+    
+    // Real-time validation
+    const error = validateConfirmPassword(newPassword, confirmPass);
+    setConfirmPasswordError(error);
+  };
 
   /** ---------- Step 1: Send OTP ---------- */
   const handleForgotSubmit = async (e) => {
@@ -71,6 +119,9 @@ export default function ForgotPasswordFlow() {
       // we'll just move to reset step here.
       toast.success("OTP Verified!", { id: toastId });
       setStep("reset");
+      // Clear password errors when moving to reset step
+      setPasswordError("");
+      setConfirmPasswordError("");
     } catch (err) {
       console.error(err);
       toast.error("Invalid OTP", { id: toastId });
@@ -116,13 +167,15 @@ export default function ForgotPasswordFlow() {
     setLoading(true);
     const toastId = toast.loading("Resetting password...");
 
-    if (!newPassword || !confirmPassword) {
-      toast.error("Both fields are required", { id: toastId });
-      setLoading(false);
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match", { id: toastId });
+    // Validate passwords before submitting
+    const newPasswordError = validatePassword(newPassword);
+    const confirmPasswordError = validateConfirmPassword(newPassword, confirmPassword);
+
+    setPasswordError(newPasswordError);
+    setConfirmPasswordError(confirmPasswordError);
+
+    if (newPasswordError || confirmPasswordError) {
+      toast.error("Please fix the password errors", { id: toastId });
       setLoading(false);
       return;
     }
@@ -152,6 +205,8 @@ export default function ForgotPasswordFlow() {
         setOtp("");
         setNewPassword("");
         setConfirmPassword("");
+        setPasswordError("");
+        setConfirmPasswordError("");
         // Redirect to login page after success
         window.location.href = "/";
       } else {
@@ -251,30 +306,75 @@ export default function ForgotPasswordFlow() {
         {step === "reset" && (
           <form onSubmit={handleResetSubmit} className="mt-6 space-y-4">
             <h2 className="text-xl font-semibold">Set New Password</h2>
+            
+            {/* New Password Field */}
             <div>
-              <input
-                type="password"
-                className="w-full border p-2 rounded"
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  className={`w-full border p-2 rounded pr-10 ${
+                    passwordError ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="New Password (min 8 characters)"
+                  value={newPassword}
+                  onChange={handleNewPasswordChange}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                >
+                  {showNewPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
+              {passwordError && (
+                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+              )}
             </div>
+
+            {/* Confirm Password Field */}
             <div>
-              <input
-                type="password"
-                className="w-full border p-2 rounded"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  className={`w-full border p-2 rounded pr-10 ${
+                    confirmPasswordError ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
+              {confirmPasswordError && (
+                <p className="text-red-500 text-sm mt-1">{confirmPasswordError}</p>
+              )}
             </div>
+
+            {/* Password Requirements */}
+            <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+              <p className="font-semibold mb-1">Password requirements:</p>
+              <p className={newPassword.length >= 8 ? "text-green-600" : "text-gray-600"}>
+                • At least 8 characters {newPassword.length >= 8 ? "✓" : ""}
+              </p>
+            </div>
+
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-[#013D3B] text-white py-2 rounded"
+              disabled={loading || passwordError || confirmPasswordError}
+              className={`w-full py-2 rounded text-white ${
+                loading || passwordError || confirmPasswordError
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#013D3B] hover:bg-[#012B29]"
+              }`}
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>

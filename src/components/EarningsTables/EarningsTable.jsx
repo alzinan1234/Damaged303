@@ -26,6 +26,7 @@ export default function EarningsTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState("0.00"); // Added state for total earnings
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [planFilter, setPlanFilter] = useState("All");
@@ -62,6 +63,8 @@ export default function EarningsTable() {
         const response = await axios.get(API_URL, { params });
         setData(response.data.results);
         setTotalCount(response.data.count);
+        // Set the dynamic total earnings from API response
+        setTotalEarnings(response.data.total_earnings || "0.00");
         setLoading(false);
         return; // Success, exit the loop
       } catch (err) {
@@ -182,7 +185,13 @@ export default function EarningsTable() {
       <h2 className="text-gray-900 text-2xl font-semibold mb-4">Subscriber Overview</h2>
       <div className="bg-[#013D3B] rounded-xl p-6 mb-6 w-full max-w-2xl shadow-xl text-white">
         <div className="text-md font-medium opacity-80">Total Earnings</div>
-        <div className="text-4xl font-bold mt-1">$ 314.97</div>
+        <div className="text-4xl font-bold mt-1">
+          $ {loading ? (
+            <span className="inline-block w-20 h-8 bg-white bg-opacity-20 rounded animate-pulse"></span>
+          ) : (
+            totalEarnings
+          )}
+        </div>
       </div>
       {/* Filters Section */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">

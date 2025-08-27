@@ -144,7 +144,7 @@ const Sidebar = ({ isOpen, setIsOpen, adminInfo }) => {
               alt="Arkive"
               width={150}
               height={150}
-              className="rounded-lg "
+              className="rounded-lg"
             />
             <button
               onClick={() => setIsOpen(false)}

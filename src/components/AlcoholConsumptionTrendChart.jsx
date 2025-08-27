@@ -119,7 +119,7 @@ export default function AlcoholConsumptionTrendChart({ title = "Token Overview" 
           <div className="relative ml-4">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-2 px-3 py-1 bg-gray-100 border border-gray-300 rounded-full text-black text-sm font-semibold font-['DM Sans']"
+              className="flex items-center space-x-2 px-3 py-1 bg-gray-100 border border-gray-300 rounded text-black text-sm font-semibold font-['DM Sans']"
             >
               <span>{selectedYear}</span>
               {isDropdownOpen ? (
