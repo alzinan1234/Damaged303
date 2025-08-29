@@ -1,12 +1,9 @@
 "use client"; // This directive is required for client-side functionality in App Router components
 
-import LottiePlayer from "@/components/LottiePlayer";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-
-import hrLogo from '../../../../public/side-bar-logo.png' // Importing the left side image
+import hrLogo from '../../../../public/side-bar-logo.png'
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,13 +12,156 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+
+  // Enhanced email validation function
+  const validateEmail = (email) => {
+    // Clear previous email error
+    setEmailError("");
+
+    // Check if email is empty
+    if (!email.trim()) {
+      setEmailError("Email is required");
+      return false;
+    }
+
+    // Comprehensive email regex pattern
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    
+    // Basic format check
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address");
+      return false;
+    }
+
+    // Check for minimum length
+    if (email.length < 5) {
+      setEmailError("Email must be at least 5 characters long");
+      return false;
+    }
+
+    // Check for maximum length
+    if (email.length > 254) {
+      setEmailError("Email is too long (maximum 254 characters)");
+      return false;
+    }
+
+    // Check for valid domain structure
+    const parts = email.split('@');
+    if (parts.length !== 2) {
+      setEmailError("Email must contain exactly one @ symbol");
+      return false;
+    }
+
+    const [localPart, domain] = parts;
+
+    // Validate local part (before @)
+    if (localPart.length === 0) {
+      setEmailError("Email must have content before @ symbol");
+      return false;
+    }
+
+    if (localPart.length > 64) {
+      setEmailError("Local part of email is too long (maximum 64 characters)");
+      return false;
+    }
+
+    // Check for consecutive dots in local part
+    if (localPart.includes('..')) {
+      setEmailError("Email cannot contain consecutive dots");
+      return false;
+    }
+
+    // Check for dots at start or end of local part
+    if (localPart.startsWith('.') || localPart.endsWith('.')) {
+      setEmailError("Email cannot start or end with a dot");
+      return false;
+    }
+
+    // Validate domain part (after @)
+    if (domain.length === 0) {
+      setEmailError("Email must have a domain after @ symbol");
+      return false;
+    }
+
+    if (domain.length > 253) {
+      setEmailError("Domain part of email is too long");
+      return false;
+    }
+
+    // Check for valid domain format
+    const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!domainRegex.test(domain)) {
+      setEmailError("Invalid domain format");
+      return false;
+    }
+
+    // Check for at least one dot in domain
+    if (!domain.includes('.')) {
+      setEmailError("Domain must contain at least one dot");
+      return false;
+    }
+
+    // Check domain extension
+    const domainParts = domain.split('.');
+    const tld = domainParts[domainParts.length - 1];
+    if (tld.length < 2) {
+      setEmailError("Domain extension must be at least 2 characters");
+      return false;
+    }
+
+    // Check for valid TLD format (only letters)
+    if (!/^[a-zA-Z]+$/.test(tld)) {
+      setEmailError("Domain extension must contain only letters");
+      return false;
+    }
+
+    // Additional security checks
+    // Check for potentially malicious patterns
+    const maliciousPatterns = [
+      /javascript:/i,
+      /data:/i,
+      /vbscript:/i,
+      /<script/i,
+      /onclick/i,
+      /onerror/i
+    ];
+
+    for (const pattern of maliciousPatterns) {
+      if (pattern.test(email)) {
+        setEmailError("Email contains invalid characters");
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  // Handle email input change with real-time validation
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    
+    // Clear general error when user starts typing
+    if (error) setError("");
+    
+    // Validate email on change (with debouncing for better UX)
+    if (newEmail.trim()) {
+      // Only validate if user has typed something
+      setTimeout(() => {
+        validateEmail(newEmail);
+      }, 300);
+    } else {
+      setEmailError("");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); // Clear previous errors
     setLoading(true); // Indicate loading state
 
-    // --- Client-side validation ---
+    // --- Enhanced Client-side validation ---
     if (!email || !password) {
       setError("Please enter both email and password.");
       toast.error("Please enter both email and password.");
@@ -29,10 +169,18 @@ export default function LoginPage() {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // Use enhanced email validation
+    if (!validateEmail(email)) {
       setError("Please enter a valid email address.");
       toast.error("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    // Password validation
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      toast.error("Password must be at least 6 characters long.");
       setLoading(false);
       return;
     }
@@ -50,18 +198,16 @@ export default function LoginPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email: email,
+            email: email.trim().toLowerCase(), // Normalize email
             password: password,
           }),
         }
       );
 
       console.log("test after call")
-
       console.log("response", response)
 
       const data = await response.json();
-
       console.log("data", data)
 
       if (response.ok) {
@@ -173,13 +319,13 @@ export default function LoginPage() {
           <div className="self-stretch flex flex-col justify-start items-center gap-[30px]">
             <div className="self-stretch flex flex-col justify-center items-center gap-[30px]">
               <div className="w-full  flex flex-col justify-start gap-[18px]">
-                {/* Replaced Next.js Image component with a standard <img> tag */}
+                {/* Logo placeholder - replace with your actual logo */}
                 <Image
                   src={hrLogo}
                   alt="Arkive"
                   width={200}
                   height={40}
-                  className="w-[200]"
+                  className="w-[200] "
                 />
                 {/* Updated text color to black */}
                 <p className="self-stretch text-start text-black text-[24px] font-semibold">
@@ -190,12 +336,9 @@ export default function LoginPage() {
                   Sign in to admin panel
                 </p>
               </div>
-              <form
-                onSubmit={handleSubmit}
-                className="w-full flex flex-col items-end gap-[18px]"
-              >
+              <div className="w-full flex flex-col items-end gap-[18px]">
                 <div className="self-stretch flex flex-col justify-start items-start gap-[18px]">
-                  {/* Email Input */}
+                  {/* Email Input with Enhanced Validation */}
                   <div className="self-stretch flex flex-col justify-start items-start gap-2">
                     {/* Updated text color to black */}
                     <label
@@ -208,12 +351,22 @@ export default function LoginPage() {
                     <input
                       type="email"
                       id="email"
-                      className="self-stretch h-10 w-full px-3 py-2.5  rounded-md border border-[#DCDCDC] text-black focus:outline-none focus:ring-1 focus:ring-[#66B8FF] font-[Inter]"
-                      placeholder=""
+                      className={`self-stretch h-10 w-full px-3 py-2.5 rounded-md border ${
+                        emailError ? 'border-red-500' : 'border-[#DCDCDC]'
+                      } text-black focus:outline-none focus:ring-1 ${
+                        emailError ? 'focus:ring-red-500' : 'focus:ring-[#66B8FF]'
+                      } font-[Inter]`}
+                      placeholder="Enter your admin email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleEmailChange}
                       required
                     />
+                    {/* Display email-specific error */}
+                    {emailError && (
+                      <p className="text-red-500 text-xs mt-1 font-[Inter]">
+                        {emailError}
+                      </p>
+                    )}
                   </div>
                   {/* Password Input */}
                   <div className="self-stretch flex flex-col justify-start items-start gap-2">
@@ -230,7 +383,7 @@ export default function LoginPage() {
                         type={showPassword ? "text" : "password"}
                         id="password"
                         className="h-10 px-3 py-2.5  rounded-md border border-[#DCDCDC] text-black focus:outline-none focus:ring-1 focus:ring-[#66B8FF] font-[Inter] w-full pr-10"
-                        placeholder=""
+                        placeholder="Enter your password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -331,7 +484,7 @@ export default function LoginPage() {
                 {/* Sign In Button */}
                 {/* Updated background to #013D3B and text to white */}
                 <button
-                  type="submit"
+                  onClick={handleSubmit}
                   className={`w-full h-10 mx-auto mt-4 bg-[#013D3B] text-white rounded-md text-sm font-normal font-[Inter] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] flex justify-center items-center transition duration-300 ease-in-out hover:bg-[#012D2B] ${
                     loading ? "opacity-70 cursor-not-allowed" : ""
                   }`}
@@ -339,7 +492,7 @@ export default function LoginPage() {
                 >
                   {loading ? "Signing In..." : "Sign In to Admin Panel"}
                 </button>
-              </form>
+              </div>
             </div>
           </div>
         </div>

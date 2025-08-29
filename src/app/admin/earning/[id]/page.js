@@ -226,15 +226,15 @@ export default function UserDetailsPage({ params }) {
           <div className="w-full flex gap-4 mt-4">
             <button
               onClick={() => router.back()}
-              className="px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold w-1/2 border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
+              className="px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold  w-full border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
             >
               Close
             </button>
-            <button
+            {/* <button
               className="px-6 py-3 rounded-lg w-1/2 font-semibold shadow-sm transition-all duration-200 hover:shadow-md bg-blue-500 hover:bg-blue-600 text-white border border-blue-500"
             >
               Edit User
-            </button>
+            </button> */}
           </div>
         </motion.div>
       </motion.div>
