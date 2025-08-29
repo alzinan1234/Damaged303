@@ -186,7 +186,7 @@ export default function EarningsTable() {
       <div className="bg-[#013D3B] rounded-xl p-6 mb-6 w-full max-w-2xl shadow-xl text-white">
         <div className="text-md font-medium opacity-80">Total Earnings</div>
         <div className="text-4xl font-bold mt-1">
-          $ {loading ? (
+          ${loading ? (
             <span className="inline-block w-20 h-8 bg-white bg-opacity-20 rounded animate-pulse"></span>
           ) : (
             totalEarnings

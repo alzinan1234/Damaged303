@@ -139,13 +139,29 @@ const SettingsPage = ({ onBackClick }) => {
 
   return (
     <div className="bg-white rounded-2xl min-h-screen text-black p-4 sm:p-6 lg:p-8 font-inter">
-      <div className="flex items-center mb-6">
-        {onBackClick && (
-          <button onClick={onBackClick} className="text-gray-600 hover:text-black mr-4" aria-label="Go back">
-            <ArrowLeftIcon className="h-6 w-6" />
-          </button>
-        )}
-        <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          {onBackClick && (
+            <button onClick={onBackClick} className="text-gray-600 hover:text-black mr-4" aria-label="Go back">
+              <ArrowLeftIcon className="h-6 w-6" />
+            </button>
+          )}
+          <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
+        </div>
+        <button
+          className="bg-[#013D3B] text-white px-6 py-2 rounded-md font-medium hover:bg-[#012a29] transition-colors duration-200"
+          onClick={() => {
+            navigator.clipboard.writeText("http://localhost:3000/signup")
+              .then(() => {
+                toast.success('URL copied to clipboard!');
+              })
+              .catch(() => {
+                toast.error('Failed to copy URL');
+              });
+          }}
+        >
+          Sign Up
+        </button>
       </div>
 
       <div className="border-b border-gray-300">

@@ -12,6 +12,7 @@ export default function middleware(request) {
     "/Forgot-Password",
     "/Otp-Verification",
     "/set-new-password",
+    "/signup",
   ];
 
   if (!token) {
