@@ -6,17 +6,72 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 
-// A client component for rendering avatars with a fallback.
-// This component is now simpler as the API does not provide avatar URLs,
-// so it will always use the placeholder image.
-function AvatarImage({ alt }) {
-  const imgSrc = "https://placehold.co/40x40/CCCCCC/000000?text=NA";
+// Enhanced AvatarImage component that handles real user images with fallback
+function AvatarImage({ src, alt, name }) {
+  const [imgSrc, setImgSrc] = useState(src);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  // Generate initials from name for fallback
+  const getInitials = (name) => {
+    if (!name) return "NA";
+    return name
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase())
+      .join("")
+      .substring(0, 2);
+  };
+
+  // Handle image load success
+  const handleImageLoad = () => {
+    setIsLoading(false);
+    setHasError(false);
+  };
+
+  // Handle image load error - fallback to placeholder
+  const handleImageError = () => {
+    setIsLoading(false);
+    setHasError(true);
+    // Set fallback image with initials
+    const initials = getInitials(name || alt);
+    setImgSrc(`https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=40&background=CCCCCC&color=000000&format=png`);
+  };
+
+  // Reset states when src changes
+  useEffect(() => {
+    if (src && src !== imgSrc) {
+      setImgSrc(src);
+      setIsLoading(true);
+      setHasError(false);
+    }
+  }, [src]);
+
+  // If no src provided, use initials immediately
+  if (!src) {
+    const initials = getInitials(name || alt);
+    return (
+      <div className="h-full w-full bg-gray-300 flex items-center justify-center text-black font-semibold text-sm">
+        {initials}
+      </div>
+    );
+  }
+
   return (
-    <img
-      className="h-full w-full object-cover"
-      src={imgSrc}
-      alt={alt}
-    />
+    <div className="h-full w-full relative">
+      {isLoading && !hasError && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+      <img
+        className="h-full w-full object-cover"
+        src={imgSrc}
+        alt={alt}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
+        style={{ display: isLoading && !hasError ? 'none' : 'block' }}
+      />
+    </div>
   );
 }
 
@@ -47,10 +102,10 @@ function UserList() {
   const [userToUpdate, setUserToUpdate] = useState(null);
 
   // API Data Fetching Logic
-  // This function now correctly handles the `name` and `join_date` from the API response.
+  // Updated to handle user profile pictures from API response
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-  const API_URL = "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/users/overview/";
+    const API_URL = "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/users/overview/";
 
     const params = new URLSearchParams({
       page: page,
@@ -64,11 +119,13 @@ function UserList() {
 
     try {
       const response = await axios.get(API_URL, { params });
-      // Updated data mapping to match the new API response structure
+      // Updated data mapping to include profile picture
       let formattedUsers = response.data.results.map((user) => ({
         id: user.id,
         customer: {
           name: user.name || "N/A",
+          // Handle various possible field names for profile picture
+          picture: user.picture || user.profile_picture || user.avatar || user.image || null,
         },
         joinDate: user.join_date,
         status: user.status,
@@ -81,10 +138,10 @@ function UserList() {
       if (userType !== "All") {
         formattedUsers = formattedUsers.filter(u => u.userType === userType);
       }
-  setUsers(formattedUsers);
-  setTotal(response.data.count);
-  setNextPage(response.data.next);
-  setPrevPage(response.data.previous);
+      setUsers(formattedUsers);
+      setTotal(response.data.count);
+      setNextPage(response.data.next);
+      setPrevPage(response.data.previous);
     } catch (error) {
       console.error("Failed to fetch users:", error);
       toast.error("Could not fetch user data.");
@@ -157,8 +214,8 @@ function UserList() {
     const toastId = toast.loading(`Updating status for ${user.customer.name}...`);
     try {
       const UPDATE_URL = `https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/users/${user.id}/block-unblock/`;
-  const action = user.status === "Active" ? "block" : "unblock";
-  const res = await axios.post(UPDATE_URL, { action });
+      const action = user.status === "Active" ? "block" : "unblock";
+      const res = await axios.post(UPDATE_URL, { action });
       if (res.status === 200 && res.data) {
         const apiMessage = res.data.message || "Status updated.";
         toast.success(apiMessage, { id: toastId });
@@ -267,7 +324,6 @@ function UserList() {
                 <th className="px-3 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                 <th className="px-3 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Join Date</th>
                 <th className="px-3 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Type</th>
-                {/* Removed Subscription Plan column */}
                 <th className="px-3 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tokens Used</th>
                 <th className="px-3 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
                 <th className="px-3 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -277,13 +333,13 @@ function UserList() {
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-gray-500">
+                  <td colSpan={8} className="text-center py-8 text-gray-500">
                     Loading users...
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-gray-400">
+                  <td colSpan={8} className="text-center py-8 text-gray-400">
                     No users found.
                   </td>
                 </tr>
@@ -295,8 +351,12 @@ function UserList() {
                     </td>
                     <td className="px-3 py-4 sm:px-6 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
-                           <AvatarImage alt={user.customer.name}/>
+                        <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden border-2 border-gray-200">
+                          <AvatarImage 
+                            src={user.customer.picture}
+                            alt={user.customer.name}
+                            name={user.customer.name}
+                          />
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-800">{user.customer.name}</div>
@@ -311,7 +371,6 @@ function UserList() {
                         {user.userType}
                       </span>
                     </td>
-                    {/* Removed Subscription Plan cell */}
                     <td className="px-3 py-4 sm:px-6 whitespace-nowrap text-sm text-gray-700">{user.totalTokensUsed}</td>
                     <td className="px-3 py-4 sm:px-6 whitespace-nowrap text-sm text-gray-700">{user.lastLogin}</td>
                     <td className="px-3 py-4 sm:px-6 whitespace-nowrap">
