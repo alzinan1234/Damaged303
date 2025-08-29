@@ -665,7 +665,7 @@ const NotificationForm = ({
       )}
 
       {/* Debug payload preview */}
-      {(pushTitle || pushDescription) && (
+      {/* {(pushTitle || pushDescription) && (
         <div className="mb-6 p-4 bg-gray-100 rounded-lg">
           <h3 className="text-sm font-bold text-gray-700 mb-2">Payload Preview:</h3>
           <pre className="text-xs text-gray-600 overflow-auto">
@@ -681,7 +681,7 @@ const NotificationForm = ({
             }, null, 2)}
           </pre>
         </div>
-      )}
+      )} */}
 
       <button
         onClick={handleSendPushNotification}
