@@ -127,52 +127,60 @@ const NotificationForm = ({
   };
 
   const handleNotificationTypeChange = (typeId) => {
-    setSelectedNotificationTypes(prev => {
+    setSelectedNotificationTypes((prev) => {
       if (prev.includes(typeId)) {
         // Don't allow removing all types
         if (prev.length === 1) {
-          toast.error('At least one notification type must be selected', {
+          toast.error("At least one notification type must be selected", {
             duration: 3000,
             style: {
-              background: '#EF4444',
-              color: 'white',
+              background: "#EF4444",
+              color: "white",
             },
           });
           return prev;
         }
-        return prev.filter(id => id !== typeId);
+        return prev.filter((id) => id !== typeId);
       } else {
         return [...prev, typeId];
       }
     });
-    
+
     // Clear notification types error
     if (errors.notificationTypes) {
-      setErrors(prev => ({ ...prev, notificationTypes: undefined }));
+      toast.dismiss();
+      toast.success("Notification type error cleared", {
+        duration: 2000,
+        style: {
+          background: "#10B981",
+          color: "white",
+        },
+      });
+      setErrors((prev) => ({ ...prev, notificationTypes: undefined }));
     }
   };
 
   const handleSendPushNotification = async () => {
     // Validate form
     if (!validateForm()) {
-      toast.error('Please fix all the errors before sending the notification', {
+      toast.error("Please fix all the errors before sending the notification", {
         duration: 4000,
         style: {
-          background: '#EF4444',
-          color: 'white',
+          background: "#EF4444",
+          color: "white",
         },
       });
       return;
     }
 
     const loadingToast = toast.loading(
-      isScheduled 
-        ? 'Scheduling your notification...' 
-        : 'Sending your notification...', 
+      isScheduled
+        ? "Scheduling your notification..."
+        : "Sending your notification...",
       {
         style: {
-          background: '#3B82F6',
-          color: 'white',
+          background: "#3B82F6",
+          color: "white",
         },
       }
     );
@@ -183,96 +191,102 @@ const NotificationForm = ({
         message: pushDescription.trim(),
         recipient_type: pushRecipient,
         notification_types: selectedNotificationTypes,
-        user_ids: pushRecipient === 'specific' ? selectedUsers : []
+        user_ids: pushRecipient === "specific" ? selectedUsers : [],
       };
 
-      console.log('Sending payload:', payload);
+      console.log("Sending payload:", payload);
 
       let response;
       if (isScheduled && pushDate && pushTime) {
         try {
           payload.scheduled_at = convertToUTCISOString(pushDate, pushTime);
-          
+
           const scheduledTime = new Date(payload.scheduled_at);
           const currentTime = new Date();
-          
+
           if (scheduledTime <= currentTime) {
             toast.dismiss(loadingToast);
-            toast.error('Scheduled time must be in the future. Please select a valid date and time.', {
-              duration: 4000,
-              style: {
-                background: '#EF4444',
-                color: 'white',
-              },
-            });
+            toast.error(
+              "Scheduled time must be in the future. Please select a valid date and time.",
+              {
+                duration: 4000,
+                style: {
+                  background: "#EF4444",
+                  color: "white",
+                },
+              }
+            );
             return;
           }
-          
+
           response = await notificationApi.schedule(payload);
-          console.log('Schedule response:', response);
-          
+          console.log("Schedule response:", response);
+
           clearForm();
           toast.dismiss(loadingToast);
-          
+
           const scheduledDate = new Date(payload.scheduled_at).toLocaleString();
           toast.success(
-            `🎯 Notification scheduled successfully! Will be delivered to  users on ${scheduledDate}`,
+            `🎯 Notification scheduled successfully! Will be delivered to users on ${scheduledDate}`,
             {
               duration: 5000,
               style: {
-                background: '#10B981',
-                color: 'white',
+                background: "#10B981",
+                color: "white",
               },
             }
           );
         } catch (dateError) {
           toast.dismiss(loadingToast);
-          toast.error('Invalid date or time format. Please check your input and try again.', {
-            duration: 4000,
-            style: {
-              background: '#EF4444',
-              color: 'white',
-            },
-          });
+          toast.error(
+            "Invalid date or time format. Please check your input and try again.",
+            {
+              duration: 4000,
+              style: {
+                background: "#EF4444",
+                color: "white",
+              },
+            }
+          );
           return;
         }
       } else {
         response = await notificationApi.sendImmediate(payload);
-        console.log('Immediate send response:', response);
-        
+        console.log("Immediate send response:", response);
+
         clearForm();
         toast.dismiss(loadingToast);
-        
+
         if (response.data?.sent_count === 0) {
           toast.warning(
-            `⚠️ Notification was processed but reached users. Please verify your recipient settings and try again.`,
+            `⚠️ Notification was processed but reached no users. Please verify your recipient settings and try again.`,
             {
               duration: 6000,
               style: {
-                background: '#F59E0B',
-                color: 'white',
+                background: "#F59E0B",
+                color: "white",
               },
             }
           );
         } else if (response.data?.sent_count < response.data?.total_users) {
           toast.success(
-            `✅ Notification sent successfully! Delivered to  users. Some users may have notification preferences disabled.`,
+            `✅ Notification sent successfully! Delivered to some users. Some users may have notification preferences disabled.`,
             {
               duration: 5000,
               style: {
-                background: '#10B981',
-                color: 'white',
+                background: "#10B981",
+                color: "white",
               },
             }
           );
         } else {
           toast.success(
-            `🚀 Notification sent successfully!  Your message has been received!`,
+            `🚀 Notification sent successfully! Your message has been received!`,
             {
               duration: 4000,
               style: {
-                background: '#10B981',
-                color: 'white',
+                background: "#10B981",
+                color: "white",
               },
             }
           );
@@ -280,31 +294,31 @@ const NotificationForm = ({
       }
 
       onNotificationSent(currentPage);
-
     } catch (error) {
-      console.error('Error sending notification:', error);
+      console.error("Error sending notification:", error);
       toast.dismiss(loadingToast);
-      
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          error.message ||
-                          'An unexpected error occurred while processing your notification';
-      
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "An unexpected error occurred while processing your notification";
+
       toast.error(
-        `❌ Failed to ${isScheduled ? 'schedule' : 'send'} notification: ${errorMessage}. Please try again or contact support if the issue persists.`, 
+        `❌ Failed to ${isScheduled ? "schedule" : "send"} notification: ${errorMessage}. Please try again or contact support if the issue persists.`,
         {
           duration: 6000,
           style: {
-            background: '#EF4444',
-            color: 'white',
+            background: "#EF4444",
+            color: "white",
           },
         }
       );
-      
-      console.log('Full error details:', {
+
+      console.log("Full error details:", {
         error,
         response: error.response?.data,
-        payload
+        payload,
       });
     }
   };

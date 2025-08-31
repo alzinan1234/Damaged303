@@ -1,5 +1,6 @@
 import React from 'react';
 import { TrashIcon, ClockIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 const NotificationItem = ({ 
   notification, 
@@ -69,6 +70,40 @@ const NotificationItem = ({
     return 'Unknown Recipients';
   };
 
+  const handleDelete = () => {
+    toast.promise(
+      onDelete(notification),
+      {
+        loading: 'Deleting notification...',
+        success: 'Notification deleted successfully!',
+        error: 'Failed to delete notification. Please try again.',
+      },
+      {
+        style: {
+          background: '#3B82F6',
+          color: 'white',
+        },
+      }
+    );
+  };
+
+  const handleCancelScheduled = () => {
+    toast.promise(
+      onCancelScheduled(notification),
+      {
+        loading: 'Cancelling scheduled notification...',
+        success: 'Scheduled notification cancelled successfully!',
+        error: 'Failed to cancel scheduled notification. Please try again.',
+      },
+      {
+        style: {
+          background: '#F59E0B',
+          color: 'white',
+        },
+      }
+    );
+  };
+
   return (
     <div
       className={`flex items-start gap-4 p-4 rounded-lg bg-white border border-gray-100 shadow-lg  transition-shadow duration-200 ${isSelected ? 'ring-2 ring-blue-200' : ''}`}
@@ -128,19 +163,19 @@ const NotificationItem = ({
 
           <div className="flex flex-col items-end gap-2 ml-2">
             <div className="flex items-center gap-2">
-              {notification.status === 'pending' && (
+              {/* {notification.status === 'pending' && (
                 <button
-                  onClick={() => onCancelScheduled(notification)}
+                  onClick={handleCancelScheduled}
                   className="inline-flex items-center justify-center p-2 rounded-md text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition"
                   title="Cancel scheduled notification"
                   aria-label="Cancel scheduled notification"
                 >
                   <XCircleIcon className="h-5 w-5" />
                 </button>
-              )}
+              )} */}
 
               <button
-                onClick={() => onDelete(notification)}
+                onClick={handleDelete}
                 className="inline-flex items-center justify-center p-2 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
                 title="Delete notification"
                 aria-label="Delete notification"

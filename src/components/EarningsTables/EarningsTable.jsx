@@ -4,14 +4,14 @@ import React, { useState, useEffect, useCallback } from "react";
 // We'll use axios for API calls, as you did in the original code.
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { getApiUrl } from "../configs/api";
 
 // =========================================================================
 // 1. Constants and Configuration
 // It's a best practice to define configuration variables outside the
 // component to prevent them from being redefined on every render.
 // =========================================================================
-const API_URL =
-  "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/subscriptions/";
+const API_URL = getApiUrl("/api/dashboard/subscriptions/");
 const ITEMS_PER_PAGE = 10; // The fixed page size for our API.
 
 // =========================================================================

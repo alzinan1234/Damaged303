@@ -3,6 +3,9 @@ import React, { useState, useRef } from "react";
 import Image from "next/image";
 import toast, { Toaster } from "react-hot-toast";
 import hrLogo from '../../../../public/side-bar-logo.png'
+import { getApiUrl } from "@/components/configs/api";
+
+ // Import API configuration
 
 export default function ForgotPasswordFlow() {
   const [step, setStep] = useState("forgot"); // "forgot" | "otp" | "reset"
@@ -78,7 +81,7 @@ export default function ForgotPasswordFlow() {
 
     try {
       const res = await fetch(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/forgot-password/",
+        getApiUrl("/api/dashboard/auth/forgot-password/"),
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -137,7 +140,7 @@ export default function ForgotPasswordFlow() {
 
     try {
       const res = await fetch(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/resend-otp/",
+        getApiUrl("/api/dashboard/auth/resend-otp/"),
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -182,7 +185,7 @@ export default function ForgotPasswordFlow() {
 
     try {
       const res = await fetch(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/reset-password/",
+        getApiUrl("/api/dashboard/auth/reset-password/"),
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

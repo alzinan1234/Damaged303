@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { getApiUrl } from "./configs/api";
 
 const EarningOverviewChart = () => {
   // State for chart data, loading state, and dropdown functionality.
@@ -35,7 +36,7 @@ const EarningOverviewChart = () => {
     async function fetchEarningData() {
       setLoading(true);
       try {
-        const response = await axios.get("https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/overview/");
+        const response = await axios.get(getApiUrl("/api/dashboard/overview/"));
         const apiData = response.data.data;
         const monthlyDataFromApi = apiData.monthly_data;
 

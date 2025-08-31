@@ -26,6 +26,7 @@ import Image from "next/image";
 import dreckks from "../../public/tika-food.svg"; // This import seems unused
 import barss from "../../public/icon/bars.png"; // This import seems unused
 import toast from "react-hot-toast";
+import { getApiUrl } from "./configs/api";
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -65,7 +66,7 @@ const navItems = [
 
   {
     name: "Affiliate  Management",
-    href: "/admin/ad-management",
+    href: "/admin/affiliate-management",
     icon: FileVideo,
   },
   {
@@ -99,7 +100,7 @@ const Sidebar = ({ isOpen, setIsOpen, adminInfo }) => {
     };
 
     fetch(
-      "https://maintains-usb-bell-with.trycloudflare.com/api/auth/logout/",
+      getApiUrl('/api/auth/logout/')  , 
       {
         method: "POST",
         headers: {

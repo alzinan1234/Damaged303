@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { getApiUrl } from '../configs/api';
 
 // Use a dynamic import for the JoditEditor to prevent SSR issues.
 const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
@@ -51,7 +52,7 @@ const SettingsPage = ({ onBackClick }) => {
     async function fetchSettings() {
       setIsLoading(true);
       try {
-        const res = await fetch('https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/settings/');
+        const res = await fetch(getApiUrl('/api/dashboard/settings/'));
         if (!res.ok) throw new Error('Failed to fetch settings from the server.');
         
         const data = await res.json();
@@ -103,7 +104,7 @@ const SettingsPage = ({ onBackClick }) => {
     }
 
     const { apiSlug, title } = currentTabConfig;
-    const endpoint = `https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/settings/${apiSlug}/`;
+    const endpoint = getApiUrl(`/api/dashboard/settings/${apiSlug}/`);
     const toastId = toast.loading(`Updating ${title}...`);
 
     try {

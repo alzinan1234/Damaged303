@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { getApiUrl } from "../configs/api";
 
 export default function ChangePasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -32,7 +33,7 @@ export default function ChangePasswordForm() {
 
     try {
       const response = await fetch(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/auth/password/change/",
+        getApiUrl('/api/auth/password/change/') , 
         {
           method: "POST",
           headers: {

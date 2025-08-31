@@ -8,6 +8,7 @@ const nextConfig = {
       "placehold.co", // Add placehold.co for external image support
       "www.pexels.com", // Add www.pexels.com for external image support
       "maintains-usb-bell-with.trycloudflare.com", // Allow profile images from API
+      "ui-avatars.com", // Allow avatar images from ui-avatars.com
     ],
   },
 };

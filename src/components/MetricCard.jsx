@@ -7,6 +7,7 @@ import { MdGeneratingTokens } from "react-icons/md";
 import { SiSololearn } from "react-icons/si";
 import { FaCircleDollarToSlot } from 'react-icons/fa6';
 import { HiMiniUserGroup } from 'react-icons/hi2';
+import { getApiUrl } from './configs/api';
 
 const MetricCard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -21,7 +22,7 @@ const MetricCard = () => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/overview/");
+       const response = await axios.get(getApiUrl("/api/dashboard/overview/"));
         const apiData = response.data.data;
 
         setDashboardData({

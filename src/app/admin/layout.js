@@ -7,6 +7,7 @@ import "./admin.css";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import NotificationPage from "@/components/Notification/NotificationPage";
+import { getApiUrl } from "@/components/configs/api";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,7 +54,7 @@ export default function RootLayout({ children }) {
       const tokenValue = token.split("=")[1];
       // Set token in headers for all fetch requests
       fetch(
-        `https://maintains-usb-bell-with.trycloudflare.com/api/auth/profile/`,
+        getApiUrl('/api/auth/profile/'),
         {
           method: "GET",
           headers: {

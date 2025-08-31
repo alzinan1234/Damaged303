@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'; // For the arrow icon
+import { getApiUrl } from './configs/api';
 
 const formatYAxisTick = (value) => {
   if (value === 0) return '0k';
@@ -44,7 +45,7 @@ export default function AlcoholConsumptionTrendChart({ title = "Token Overview" 
     async function fetchTokenData() {
       setLoading(true);
       try {
-        const response = await axios.get("https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/overview/");
+        const response = await axios.get(getApiUrl("/api/dashboard/overview/"));
         const apiData = response.data.data;
         const monthlyTokenDataFromApi = apiData.monthly_token_data;
 

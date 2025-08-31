@@ -8,6 +8,7 @@ import ChangePasswordForm from "./ChangePasswordForm";
 import { RxAvatar } from "react-icons/rx";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { getApiUrl } from "../configs/api";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ useEffect(() => {
   if (token) {
     const tokenValue = token.split("=")[1];
     fetch(
-      `https://maintains-usb-bell-with.trycloudflare.com/api/auth/profile/`,
+      getApiUrl('/api/auth/profile/'),
       {
         method: "GET",
         headers: {
@@ -96,7 +97,7 @@ useEffect(() => {
       const token = tokenCookie.split("=")[1];
 
       const res = await axios.post(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/auth/profile/",
+        getApiUrl('/api/auth/profile/') ,
         formData,
         {
           headers: {

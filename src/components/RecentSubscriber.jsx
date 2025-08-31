@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getApiUrl } from './configs/api';
 
 // Client component for avatar image with fallback
 function AvatarImage({ src, alt, fallbackText }) {
@@ -35,7 +36,7 @@ const RecentSubscribersAndProducts = () => {
     async function fetchData() {
       setLoading(true);
       try {
-        const response = await axios.get("https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/overview/");
+        const response = await axios.get(getApiUrl("/api/dashboard/overview/"));
         const apiData = response.data.data;
 
         // Map recent subscribers from API

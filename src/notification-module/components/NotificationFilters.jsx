@@ -1,5 +1,6 @@
 import React from 'react';
 import { MagnifyingGlassIcon, TrashIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 const NotificationFilters = ({
   searchTerm,
@@ -11,6 +12,34 @@ const NotificationFilters = ({
   selectedNotifications,
   onBulkDelete
 }) => {
+  const handleBulkDelete = () => {
+    if (selectedNotifications.length === 0) {
+      toast.error("No notifications selected for deletion.", {
+        duration: 3000,
+        style: {
+          background: "#EF4444",
+          color: "white",
+        },
+      });
+      return;
+    }
+
+    toast.promise(
+      onBulkDelete(),
+      {
+        loading: "Deleting selected notifications...",
+        success: "Selected notifications deleted successfully!",
+        error: "Failed to delete selected notifications. Please try again.",
+      },
+      {
+        style: {
+          background: "#3B82F6",
+          color: "white",
+        },
+      }
+    );
+  };
+
   return (
     <div className="backdrop-blur-lg rounded shadow-xl p-6 mb-8 animate-fade-in">
       <div className="flex flex-col md:flex-row items-center justify-center gap-6">
@@ -53,7 +82,7 @@ const NotificationFilters = ({
         
         {/* Bulk Delete Button */}
         <button
-          onClick={onBulkDelete}
+          onClick={handleBulkDelete}
           disabled={selectedNotifications.length === 0}
           className={`flex items-center justify-center gap-2 px-6 py-3 rounded font-normal shadow-lg transition-all duration-200 mx-2 ${
             selectedNotifications.length > 0

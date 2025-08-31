@@ -4,6 +4,8 @@ import Image from "next/image";
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import hrLogo from '../../../../public/side-bar-logo.png'
+import { getApiUrl } from "@/components/configs/api";
+ // Import API configuration
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -187,22 +189,24 @@ export default function LoginPage() {
 
     console.log("test")
 
-    // --- Real API Call ---
+    // --- Real API Call using configuration ---
     try {
       console.log("Test before call")
-      const response = await fetch(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/login/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim().toLowerCase(), // Normalize email
-            password: password,
-          }),
-        }
-      );
+      
+      // Use the API configuration
+      const apiUrl = getApiUrl("/api/dashboard/auth/login/");
+      console.log("API URL:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(), // Normalize email
+          password: password,
+        }),
+      });
 
       console.log("test after call")
       console.log("response", response)

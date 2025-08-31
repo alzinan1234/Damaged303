@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
+import { getApiUrl } from "../configs/api";
 
 // Enhanced AvatarImage component that handles real user images with fallback
 function AvatarImage({ src, alt, name }) {
@@ -105,7 +106,7 @@ function UserList() {
   // Updated to handle user profile pictures from API response
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const API_URL = "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/users/overview/";
+    const API_URL = getApiUrl("/api/dashboard/users/overview/");
 
     const params = new URLSearchParams({
       page: page,
@@ -213,7 +214,7 @@ function UserList() {
     if (!user) return;
     const toastId = toast.loading(`Updating status for ${user.customer.name}...`);
     try {
-      const UPDATE_URL = `https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/users/${user.id}/block-unblock/`;
+      const UPDATE_URL = getApiUrl(`/api/dashboard/users/${user.id}/block-unblock/`);
       const action = user.status === "Active" ? "block" : "unblock";
       const res = await axios.post(UPDATE_URL, { action });
       if (res.status === 200 && res.data) {

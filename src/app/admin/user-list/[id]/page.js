@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import { getApiUrl } from "@/components/configs/api";
+ // Import API configuration
 
 // Perfect Avatar component that shows real user images with elegant fallback
 function UserAvatar({ src, alt, name }) {
@@ -70,8 +72,9 @@ function UserAvatar({ src, alt, name }) {
   );
 }
 
-export default function UserDetailsPage({ params }) {
+export default function UserDetailsPage({ params: paramsPromise }) {
   const router = useRouter();
+  const params = React.use(paramsPromise);
   const userId = params.id;
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -83,7 +86,7 @@ export default function UserDetailsPage({ params }) {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/users/overview/${userId}/`
+          getApiUrl(`/api/dashboard/users/overview/${userId}/`)
         );
         if (!res.ok) throw new Error("Failed to fetch user details");
         const data = await res.json();
@@ -110,7 +113,7 @@ export default function UserDetailsPage({ params }) {
 
     try {
       const res = await fetch(
-        `https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/users/${user.id}/block-unblock/`,
+        getApiUrl(`/api/dashboard/users/${user.id}/block-unblock/`),
         {
           method: "POST",
           headers: {
