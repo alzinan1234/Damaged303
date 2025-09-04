@@ -298,7 +298,7 @@ export default function SignupPage() {
       console.log("Starting signup process...");
 
       const response = await fetch(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/signup/",
+        "https://api.hrlynx.ai/api/dashboard/auth/signup/",
         {
           method: "POST",
           headers: {
@@ -399,7 +399,7 @@ export default function SignupPage() {
 
     try {
       const response = await fetch(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/verify-email/",
+        "https://api.hrlynx.ai/api/dashboard/auth/verify-email/",
         {
           method: "POST",
           headers: {
@@ -448,7 +448,7 @@ export default function SignupPage() {
 
     try {
       const response = await fetch(
-        "https://maintains-usb-bell-with.trycloudflare.com/api/dashboard/auth/resend-otp/",
+        "https://api.hrlynx.ai/api/dashboard/auth/resend-otp/",
         {
           method: "POST",
           headers: {

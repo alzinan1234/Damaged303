@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://maintains-usb-bell-with.trycloudflare.com';
+const BASE_URL = 'https://api.hrlynx.ai';
 
 // Get auth token from cookie
 export const getAuthToken = () => {

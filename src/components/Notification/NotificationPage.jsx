@@ -45,7 +45,7 @@ const NotificationPage = ({ onBackClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
   const now = useMemo(() => new Date(), []);
-  const BASE_URL = 'https://maintains-usb-bell-with.trycloudflare.com';
+  const BASE_URL = 'https://api.hrlynx.ai';
 
   // Get auth token from cookie
   const getAuthToken = () => {

@@ -56,7 +56,7 @@ const RecentSubscribersAndProducts = () => {
           totalClicks: product.total_clicks,
           addedTime: product.added_time,
           updatedTime: product.updated_time,
-          image: product.image ? `https://maintains-usb-bell-with.trycloudflare.com${product.image}` : `https://placehold.co/34x34/8B5CF6/FFFFFF?text=${product.title.split(' ').map(n => n[0]).join('').toUpperCase()}`,
+          image: product.image ? `https://api.hrlynx.ai${product.image}` : `https://placehold.co/34x34/8B5CF6/FFFFFF?text=${product.title.split(' ').map(n => n[0]).join('').toUpperCase()}`,
         }));
 
         setRecentSubscribers(subscribersFromApi);

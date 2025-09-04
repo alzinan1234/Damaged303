@@ -1,5 +1,5 @@
 // Real API configuration - Update base_url with your actual domain
-export const API_BASE_URL = "https://maintains-usb-bell-with.trycloudflare.com/api";
+export const API_BASE_URL = "https://api.hrlynx.ai";
 
 // Helper function to get auth token (from cookies or localStorage)
 export const getAuthToken = () => {

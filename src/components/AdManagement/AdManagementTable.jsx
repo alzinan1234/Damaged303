@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { PlusIcon, TrashIcon, CheckCircleIcon, XCircleIcon, PencilIcon } from "@heroicons/react/24/outline";
 
 // Real API configuration - Update base_url with your actual domain
-const API_BASE_URL = "https://maintains-usb-bell-with.trycloudflare.com/api";
+const API_BASE_URL = "https://api.hrlynx.ai/api";
 
 // Helper function to get auth token (from cookies or localStorage)
 const getAuthToken = () => {
